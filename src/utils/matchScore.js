@@ -1,13 +1,20 @@
-export function calculateMatchScore(userSkills, jobSkills) {
-  if (!userSkills.length) return 0;
+export function getMatchDetails(userSkills, jobSkills) {
+  const matchedSkills = userSkills.filter((skill) =>
+    jobSkills.includes(skill)
+  );
 
-  let matched = 0;
+  const missingSkills = jobSkills.filter(
+    (skill) => !userSkills.includes(skill)
+  );
 
-  for (const skill of userSkills) {
-    if (jobSkills.includes(skill)) {
-      matched++;
-    }
-  }
+  const score =
+    jobSkills.length === 0
+      ? 0
+      : Math.round((matchedSkills.length / jobSkills.length) * 100);
 
-  return Math.round((matched / jobSkills.length) * 100);
+  return {
+    score,
+    matchedSkills,
+    missingSkills,
+  };
 }
