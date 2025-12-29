@@ -1,14 +1,22 @@
+import { useState } from "react";
 import { jobs } from "./data/mockJobs";
-import { calculateMatchScore } from "./utils/matchScore";
+import { getMatchDetails } from "./utils/matchScore";
+import SkillInput from "./components/SkillInput";
+import JobList from "./components/JobList";
 
 function App() {
-  const userSkills = ["react", "javascript"];
+  const [skillInput, setSkillInput] = useState("");
+
+  const userSkills = skillInput
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
 
   const rankedJobs = jobs
-    .map((job) => ({
-      ...job,
-      score: calculateMatchScore(userSkills, job.skills),
-    }))
+    .map((job) => {
+      const details = getMatchDetails(userSkills, job.skills);
+      return { ...job, ...details };
+    })
     .filter((job) => job.score > 0)
     .sort((a, b) => b.score - a.score);
 
@@ -16,23 +24,9 @@ function App() {
     <div style={{ padding: "2rem" }}>
       <h1>Job Recommender</h1>
 
-      <h2>Your skills:</h2>
-      <p>{userSkills.join(", ")}</p>
+      <SkillInput value={skillInput} onChange={setSkillInput} />
 
-      <h2>Recommended jobs:</h2>
-
-      {rankedJobs.length === 0 ? (
-        <p>No matching jobs found.</p>
-      ) : (
-        <ul>
-          {rankedJobs.map((job) => (
-            <li key={job.id}>
-              <strong>{job.title}</strong> @ {job.company} — Match:{" "}
-              {job.score}%
-            </li>
-          ))}
-        </ul>
-      )}
+      <JobList jobs={rankedJobs} />
     </div>
   );
 }
