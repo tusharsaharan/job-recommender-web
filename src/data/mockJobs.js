@@ -1,20 +1,22 @@
-export const jobs = [
+const mockJobs = [
   {
     id: 1,
     title: "Frontend Developer",
-    company: "Acme Corp",
-    skills: ["react", "javascript", "css", "html"],
+    company: "TechCorp",
+    requiredSkills: ["react", "javascript", "css"],
   },
   {
     id: 2,
     title: "Backend Developer",
     company: "DataWorks",
-    skills: ["node", "express", "mongodb"],
+    requiredSkills: ["node", "express", "mongodb"],
   },
   {
     id: 3,
-    title: "Full Stack Developer",
-    company: "StartupX",
-    skills: ["react", "node", "javascript", "sql"],
+    title: "Full Stack Engineer",
+    company: "BuildIt",
+    requiredSkills: ["react", "node", "sql"],
   },
 ];
+
+export default mockJobs;
