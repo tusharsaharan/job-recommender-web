@@ -1,44 +1,55 @@
-import { useLocation } from "react-router-dom";
-import JobCard from "../components/JobCard";
-import mockJobs from "../data/mockJobs";
-import { getMatchScore } from "../utils/matchScore";
+import { useEffect, useState } from "react";
+import API_BASE from "../api";
 
-function Dashboard() {
-  const location = useLocation();
-  const skills = location.state?.skills || [];
+export default function Dashboard({ onLogout }) {
+  const [jobs, setJobs] = useState([]);
 
-  const rankedJobs = mockJobs
-    .map((job) => ({
-      ...job,
-      score: getMatchScore(job.requiredSkills, skills),
-      matchedSkills: job.requiredSkills.filter((s) =>
-        skills.includes(s)
-      ),
-      missingSkills: job.requiredSkills.filter(
-        (s) => !skills.includes(s)
-      ),
-    }))
-    .sort((a, b) => b.score - a.score);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    fetch(`${API_BASE}/jobs/match`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then(setJobs);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-bold mb-2">
-          Your Job Matches
-        </h1>
+    <div className="min-h-screen bg-gray-50 p-10">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Recommended Jobs</h1>
+        <button
+          onClick={onLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded"
+        >
+          Logout
+        </button>
+      </div>
 
-        <p className="text-gray-600 mb-8">
-          Ranked based on how well your skills match the role
-        </p>
+      {jobs.length === 0 && <p>No matches yet</p>}
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {rankedJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
-        </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        {jobs.map((job) => (
+          <div key={job.id} className="bg-white p-6 rounded-xl shadow">
+            <h2 className="text-xl font-semibold">{job.title}</h2>
+            <p className="text-gray-600">
+              {job.company} · {job.location}
+            </p>
+
+            <p className="mt-3 font-medium">
+              Match Score: {job.score}%
+            </p>
+
+            <p className="text-sm mt-2">
+              Matched: {job.matchedSkills.join(", ")}
+            </p>
+
+            <p className="text-sm text-gray-500">
+              Missing: {job.missingSkills.join(", ")}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
-
-export default Dashboard;
