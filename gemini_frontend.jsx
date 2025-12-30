@@ -129,25 +129,37 @@ const handleMockRequest = (endpoint, method, body) => {
 /* -----------------------------------------------------------------------
    FUNCTION: apiCall
    DESCRIPTION: The central gateway for all data requests.
-   Updated to handle FormData headers correctly.
+   Updated to automatically handle FormData and Headers.
    -----------------------------------------------------------------------
 */
-const apiCall = async (endpoint, method = 'GET', body = null, token = null, isFormData = false) => {
-  if (token === 'mock-token') {
+const apiCall = async (endpoint, method = 'GET', body = null, token = null) => {
+  // 1. Get Token (Argument > LocalStorage)
+  const authToken = token || localStorage.getItem('token');
+  
+  // 2. Check Mock Mode
+  if (authToken === 'mock-token') {
     return handleMockRequest(endpoint, method, body);
   }
 
-  // Construct headers
+  // 3. Auto-detect FormData
+  const isFormData = body instanceof FormData;
+
+  // 4. Construct Headers
   const headers = {};
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
   }
-  // Important: Do NOT set Content-Type for FormData; browser sets it with boundary.
+  
+  // 5. Content-Type Handling
+  // We explicitly do NOT set Content-Type for FormData.
+  // The browser will attach 'multipart/form-data; boundary=...' automatically.
   if (!isFormData) {
     headers['Content-Type'] = 'application/json';
   }
+  
   headers['Accept'] = 'application/json';
 
+  // 6. Config
   const config = {
     method,
     headers,
@@ -157,10 +169,11 @@ const apiCall = async (endpoint, method = 'GET', body = null, token = null, isFo
     config.body = isFormData ? body : JSON.stringify(body);
   }
 
+  // 7. Execute
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, config);
     
-    // Robust error handling for non-JSON responses (which often cause "Unexpected token" errors)
+    // Robust error handling for non-JSON responses
     let data;
     try {
       data = await response.json();
@@ -443,8 +456,9 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
     formData.append('resume', file);
 
     try {
-      // Calls backend (or mock) to parse resume and return skills
-      const response = await apiCall('/users/resume', 'POST', formData, token, true);
+      // Updated call: No longer need the boolean flag, apiCall detects FormData automatically
+      const response = await apiCall('/users/resume', 'POST', formData, token);
+      
       alert(token === 'mock-token' ? 'Demo Mode: Resume parsed successfully!' : `Resume uploaded! Skills detected: ${response.skills.join(', ')}`);
       
       if (token === 'mock-token') {
