@@ -30,7 +30,6 @@ const MOCK_USER_SEEKER = { _id: 'seeker1', name: 'Alice Demo', email: 'alice@dem
 const MOCK_USER_RECRUITER = { _id: 'recruiter1', name: 'Bob Recruiter', email: 'bob@demo.com', role: 'recruiter' };
 
 // --- MOCK DATABASE STATE ---
-// We initialize these arrays to simulate a database in memory for the demo mode.
 const MOCK_JOBS_INIT = [
   { _id: '1', title: 'Frontend Developer', company: 'TechFlow', skills: ['React', 'JavaScript', 'CSS'], description: 'Building responsive UIs with modern stacks.', recruiter: 'recruiter1', score: 0 },
   { _id: '2', title: 'Backend Engineer', company: 'DataSystems', skills: ['Node.js', 'Python', 'SQL'], description: 'Handling large scale APIs and database optimization.', recruiter: 'recruiter1', score: 0 },
@@ -46,8 +45,6 @@ let MOCK_APPS = [...MOCK_APPS_INIT];
 /* -----------------------------------------------------------------------
    FUNCTION: handleMockRequest
    DESCRIPTION: Intercepts API calls when in "Demo Mode" (token === 'mock-token').
-   It simulates network delay and returns data from the in-memory arrays above
-   instead of hitting the real backend.
    -----------------------------------------------------------------------
 */
 const handleMockRequest = (endpoint, method, body) => {
@@ -55,13 +52,11 @@ const handleMockRequest = (endpoint, method, body) => {
     setTimeout(() => {
       console.log(`[MOCK API] ${method} ${endpoint}`, body);
 
-      // 1. GET JOBS: Returns list of jobs. Adds fake "match score" for seekers.
       if (endpoint === '/jobs' && method === 'GET') {
         resolve(MOCK_JOBS.map(j => ({ ...j, score: Math.random() })));
         return;
       }
       
-      // 2. POST JOB: Recruiter adds a new job to the mock array.
       if (endpoint === '/jobs' && method === 'POST') {
         const newJob = body;
         const job = { ...newJob, _id: Date.now().toString(), recruiter: 'recruiter1' };
@@ -70,20 +65,17 @@ const handleMockRequest = (endpoint, method, body) => {
         return;
       }
 
-      // 3. UPLOAD RESUME: Simulates parsing skills from a file.
       if (endpoint === '/users/resume' && method === 'POST') {
         const skills = ['React', 'JavaScript', 'Node.js', 'CSS'];
         resolve({ skills, user: { ...MOCK_USER_SEEKER, skills } });
         return;
       }
 
-      // 4. GET APPLICATIONS (SEEKER): Filter apps for the current mock seeker.
       if (endpoint === '/applications/me' && method === 'GET') {
         resolve(MOCK_APPS.filter(a => a.seeker._id === 'seeker1'));
         return;
       }
 
-      // 5. APPLY (SEEKER): Create a new application entry.
       if (endpoint.startsWith('/applications/') && method === 'POST') {
         const jobId = endpoint.split('/')[2];
         const job = MOCK_JOBS.find(j => j._id === jobId);
@@ -101,13 +93,11 @@ const handleMockRequest = (endpoint, method, body) => {
         return;
       }
 
-      // 6. GET APPLICATIONS (RECRUITER): Filter apps for the current mock recruiter.
       if (endpoint === '/applications/recruiter' && method === 'GET') {
         resolve(MOCK_APPS.filter(a => a.recruiter === 'recruiter1'));
         return;
       }
 
-      // 7. UPDATE STATUS (RECRUITER): Change application status (Shortlisted/Rejected).
       if (endpoint.includes('/status') && method === 'PATCH') {
         const appId = endpoint.split('/')[2];
         const { status } = body;
@@ -121,8 +111,6 @@ const handleMockRequest = (endpoint, method, body) => {
         return;
       }
 
-      // 8. ME (AUTH CHECK): Checks localStorage to decide which mock user identity to return.
-      // UPDATED: Changed from /auth/me to /users/me to match your backend
       if (endpoint === '/users/me') {
         const mockRole = localStorage.getItem('mock-role');
         if (mockRole === 'recruiter') {
@@ -134,31 +122,31 @@ const handleMockRequest = (endpoint, method, body) => {
       }
 
       reject(new Error(`Mock endpoint not found: ${endpoint}`));
-    }, 600); // 600ms simulated network delay
+    }, 600);
   });
 };
 
 /* -----------------------------------------------------------------------
    FUNCTION: apiCall
    DESCRIPTION: The central gateway for all data requests.
-   - If token is 'mock-token', it routes to `handleMockRequest`.
-   - Otherwise, it performs a real `fetch` to `localhost:5000`.
+   Updated to handle FormData headers correctly.
    -----------------------------------------------------------------------
 */
 const apiCall = async (endpoint, method = 'GET', body = null, token = null, isFormData = false) => {
-  // INTERCEPT: Mock Mode
   if (token === 'mock-token') {
     return handleMockRequest(endpoint, method, body);
   }
 
-  // REAL API CALL
+  // Construct headers
   const headers = {};
-  if (!isFormData) {
-    headers['Content-Type'] = 'application/json';
-  }
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
+  // Important: Do NOT set Content-Type for FormData; browser sets it with boundary.
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
+  headers['Accept'] = 'application/json';
 
   const config = {
     method,
@@ -171,8 +159,19 @@ const apiCall = async (endpoint, method = 'GET', body = null, token = null, isFo
 
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, config);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.msg || data.message || 'Something went wrong');
+    
+    // Robust error handling for non-JSON responses (which often cause "Unexpected token" errors)
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      throw new Error(`Server Error (${response.status}): ${response.statusText}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || `Error ${response.status}: Something went wrong`);
+    }
+    
     return data;
   } catch (error) {
     console.error("API Error:", error);
@@ -192,13 +191,11 @@ const apiCall = async (endpoint, method = 'GET', body = null, token = null, isFo
 const Navbar = ({ user, onLogout }) => (
   <nav className="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
     <div className="max-w-6xl mx-auto flex justify-between items-center">
-      {/* Logo Section */}
       <div className="flex items-center gap-2">
         <Briefcase className="w-6 h-6 text-blue-400" />
         <span className="text-xl font-bold tracking-tight">JobMatch</span>
       </div>
       
-      {/* User Info & Logout (Only visible if logged in) */}
       {user && (
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 text-sm text-slate-300 hidden sm:flex">
@@ -225,10 +222,6 @@ const Navbar = ({ user, onLogout }) => (
    ##                                                                       ##
    ###########################################################################
    ###########################################################################
-   
-   Handles:
-   1. Real Login/Registration via Forms.
-   2. "Demo Mode" buttons to bypass backend.
 */
 const AuthScreen = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -241,12 +234,10 @@ const AuthScreen = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // --- DEMO LOGIN LOGIC ---
   const handleDemoLogin = (type) => {
     setLoading(true);
     setTimeout(() => {
       const demoUser = type === 'seeker' ? MOCK_USER_SEEKER : MOCK_USER_RECRUITER;
-      // Set special flags in localStorage to maintain "Mock Session"
       localStorage.setItem('token', 'mock-token');
       localStorage.setItem('mock-role', type); 
       onLogin(demoUser, 'mock-token');
@@ -254,7 +245,6 @@ const AuthScreen = ({ onLogin }) => {
     }, 800);
   };
 
-  // --- REAL LOGIN LOGIC ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -262,18 +252,14 @@ const AuthScreen = ({ onLogin }) => {
 
     try {
       if (isLogin) {
-        // Login Request
         const data = await apiCall('/auth/login', 'POST', {
           email: formData.email,
           password: formData.password
         });
         localStorage.setItem('token', data.token);
-        // Fetch full user profile after getting token
-        // UPDATED: Changed from /auth/me to /users/me
         const user = await apiCall('/users/me', 'GET', null, data.token);
         onLogin(user, data.token);
       } else {
-        // Register Request
         await apiCall('/auth/register', 'POST', formData);
         setIsLogin(true); 
         setError('Registration successful! Please login.');
@@ -298,7 +284,6 @@ const AuthScreen = ({ onLogin }) => {
           <p className="text-slate-500">Job matching made intelligent</p>
         </div>
 
-        {/* --- DEMO BUTTONS SECTION --- */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <button 
             onClick={() => handleDemoLogin('seeker')}
@@ -327,14 +312,12 @@ const AuthScreen = ({ onLogin }) => {
           </div>
         </div>
 
-        {/* --- ERROR DISPLAY --- */}
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
             <AlertCircle className="w-4 h-4" /> {error}
           </div>
         )}
 
-        {/* --- AUTH FORM --- */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <>
@@ -423,11 +406,6 @@ const AuthScreen = ({ onLogin }) => {
    ##                                                                       ##
    ###########################################################################
    ###########################################################################
-
-   Features:
-   1. Resume Upload: Parses PDF, detects skills, updates profile.
-   2. Job Matching: Shows jobs with "Match Score" based on extracted skills.
-   3. Application Tracking: Shows status of applied jobs.
 */
 const SeekerDashboard = ({ user, token, refreshUser }) => {
   const [jobs, setJobs] = useState([]);
@@ -436,7 +414,6 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // --- DATA FETCHING ---
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -457,7 +434,6 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
     fetchData();
   }, [fetchData]);
 
-  // --- ACTION: UPLOAD RESUME ---
   const handleResumeUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -471,13 +447,12 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
       const response = await apiCall('/users/resume', 'POST', formData, token, true);
       alert(token === 'mock-token' ? 'Demo Mode: Resume parsed successfully!' : `Resume uploaded! Skills detected: ${response.skills.join(', ')}`);
       
-      // If mock mode, we manually update the local user object to reflect new skills instantly
       if (token === 'mock-token') {
          user.skills = response.skills;
       }
       
-      await refreshUser(); // Fetch updated user data (skills)
-      fetchData(); // Fetch jobs again to re-calculate match scores
+      await refreshUser(); 
+      fetchData(); 
     } catch (err) {
       alert(err.message);
     } finally {
@@ -485,12 +460,11 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
     }
   };
 
-  // --- ACTION: APPLY TO JOB ---
   const handleApply = async (jobId) => {
     try {
       await apiCall(`/applications/${jobId}`, 'POST', {}, token);
       alert('Application submitted successfully!');
-      fetchData(); // Refresh list to show "Applied" status
+      fetchData(); 
     } catch (err) {
       alert(err.message);
     }
@@ -502,9 +476,6 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {/* CONDITIONAL VIEW: RESUME UPLOAD PROMPT
-          If user has no skills, we force them to upload resume first.
-      */}
       {!hasSkills ? (
         <div className="bg-white p-10 rounded-2xl shadow-sm border border-slate-200 text-center mb-8 animate-in fade-in slide-in-from-bottom-4">
           <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -527,7 +498,6 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
           </label>
         </div>
       ) : (
-        /* SKILLS HEADER (Visible if skills exist) */
         <div className="mb-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Your Skills</h3>
@@ -549,7 +519,6 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
         </div>
       )}
 
-      {/* TABS: Jobs vs Applications */}
       <div className="flex gap-8 border-b border-slate-200 mb-6">
         <button 
           onClick={() => setActiveTab('jobs')}
@@ -649,11 +618,6 @@ const SeekerDashboard = ({ user, token, refreshUser }) => {
    ##                                                                       ##
    ###########################################################################
    ###########################################################################
-
-   Features:
-   1. Job Posting: Recruiter can create new job openings.
-   2. Applicant Review: View seekers who applied to specific jobs.
-   3. Status Management: Accept (Shortlist) or Reject applicants.
 */
 const RecruiterDashboard = ({ user, token }) => {
   const [jobs, setJobs] = useState([]);
@@ -663,19 +627,15 @@ const RecruiterDashboard = ({ user, token }) => {
   const [newJob, setNewJob] = useState({ title: '', company: '', skills: '', description: '' });
   const [loading, setLoading] = useState(true);
 
-  // --- DATA FETCHING ---
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // 1. Fetch all jobs, then filter in memory (or use backend filter) to show only THIS recruiter's jobs
       const allJobs = await apiCall('/jobs', 'GET', null, token);
       const myJobs = allJobs.filter(j => j.recruiter === user._id);
       setJobs(myJobs);
       
-      // Auto-select the first job to show applicants immediately
       if (myJobs.length > 0 && !selectedJobId) setSelectedJobId(myJobs[0]._id);
 
-      // 2. Fetch all applications relevant to this recruiter
       const apps = await apiCall('/applications/recruiter', 'GET', null, token);
       setApplications(apps);
     } catch (err) {
@@ -689,7 +649,6 @@ const RecruiterDashboard = ({ user, token }) => {
     fetchData();
   }, [fetchData]);
 
-  // --- ACTION: CREATE JOB ---
   const handleCreateJob = async (e) => {
     e.preventDefault();
     try {
@@ -697,17 +656,15 @@ const RecruiterDashboard = ({ user, token }) => {
       await apiCall('/jobs', 'POST', { ...newJob, skills: skillsArray }, token);
       setShowCreateModal(false);
       setNewJob({ title: '', company: '', skills: '', description: '' });
-      fetchData(); // Refresh list to show new job
+      fetchData();
     } catch (err) {
       alert(err.message);
     }
   };
 
-  // --- ACTION: UPDATE STATUS ---
   const handleStatusUpdate = async (appId, status) => {
     try {
       await apiCall(`/applications/${appId}/status`, 'PATCH', { status }, token);
-      // Optimistic Update: Update local state immediately for better UX
       setApplications(prev => prev.map(a => a._id === appId ? { ...a, status } : a));
     } catch (err) {
       alert(err.message);
@@ -720,9 +677,6 @@ const RecruiterDashboard = ({ user, token }) => {
   return (
     <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       
-      {/* SIDEBAR: JOB LIST 
-         Shows all jobs posted by the recruiter. Clicking one shows its applicants.
-      */}
       <div className="md:col-span-1 space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -760,9 +714,6 @@ const RecruiterDashboard = ({ user, token }) => {
         </button>
       </div>
 
-      {/* MAIN AREA: APPLICANT REVIEW 
-         Shows candidates who applied to the selected job.
-      */}
       <div className="md:col-span-2">
         {selectedJob ? (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm min-h-[500px] overflow-hidden">
@@ -794,7 +745,6 @@ const RecruiterDashboard = ({ user, token }) => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      {/* Show Accept/Reject buttons ONLY if status is Pending */}
                       {!app.status || (app.status !== 'shortlisted' && app.status !== 'rejected') ? (
                         <>
                           <button 
@@ -828,7 +778,6 @@ const RecruiterDashboard = ({ user, token }) => {
         )}
       </div>
 
-      {/* MODAL: POST JOB */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
@@ -884,17 +833,14 @@ const App = () => {
 
   const fetchUser = useCallback(async (authToken) => {
     try {
-      // UPDATED: Changed from /auth/me to /users/me
       const userData = await apiCall('/users/me', 'GET', null, authToken);
       setUser(userData);
     } catch (err) {
       console.error("Auth failed", err);
-      // Only clear if it was a real token that failed, preserve mock token logic if needed
       if (authToken !== 'mock-token') {
           localStorage.removeItem('token');
           setToken(null);
       } else {
-        // Recover mock user if refreshed on mock token based on saved role
         const savedRole = localStorage.getItem('mock-role');
         setUser(savedRole === 'recruiter' ? MOCK_USER_RECRUITER : MOCK_USER_SEEKER); 
       }
@@ -918,7 +864,7 @@ const App = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('mock-role'); // Clear mock role
+    localStorage.removeItem('mock-role'); 
     setToken(null);
     setUser(null);
   };
