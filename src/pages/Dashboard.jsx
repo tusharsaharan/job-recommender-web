@@ -1,55 +1,64 @@
 import { useEffect, useState } from "react";
-import API_BASE from "../api";
+import api from "../api";
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard() {
+  const [user, setUser] = useState(null);
   const [jobs, setJobs] = useState([]);
+  const [loadingId, setLoadingId] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    api.get("/users/me").then((res) => {
+      setUser(res.data);
 
-    fetch(`${API_BASE}/jobs/match`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then(setJobs);
+      if (res.data.role === "seeker") {
+        api.get("/jobs/match").then((r) => setJobs(r.data));
+      } else {
+        api.get("/jobs").then((r) => setJobs(r.data.jobs || r.data));
+      }
+    });
   }, []);
 
+  if (!user) return <div className="p-6">Loading...</div>;
+
   return (
-    <div className="min-h-screen bg-gray-50 p-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Recommended Jobs</h1>
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow px-6 py-4 flex justify-between">
+        <h1 className="font-bold text-xl">
+          {user.role === "recruiter" ? "Recruiter Dashboard" : "Job Matches"}
+        </h1>
         <button
-          onClick={onLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded"
+          className="text-red-600"
+          onClick={() => {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          }}
         >
           Logout
         </button>
-      </div>
+      </header>
 
-      {jobs.length === 0 && <p>No matches yet</p>}
-
-      <div className="grid md:grid-cols-2 gap-6">
+      <main className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {jobs.map((job) => (
-          <div key={job.id} className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-xl font-semibold">{job.title}</h2>
-            <p className="text-gray-600">
-              {job.company} · {job.location}
-            </p>
+          <div key={job._id} className="bg-white p-4 rounded-xl shadow">
+            <h2 className="font-bold text-lg">{job.title}</h2>
+            <p className="text-sm text-gray-600">{job.company}</p>
 
-            <p className="mt-3 font-medium">
-              Match Score: {job.score}%
-            </p>
-
-            <p className="text-sm mt-2">
-              Matched: {job.matchedSkills.join(", ")}
-            </p>
-
-            <p className="text-sm text-gray-500">
-              Missing: {job.missingSkills.join(", ")}
-            </p>
+            {user.role === "seeker" && (
+              <button
+                disabled={loadingId === job._id}
+                onClick={async () => {
+                  setLoadingId(job._id);
+                  await api.post(`/applications/${job._id}`);
+                  setLoadingId(null);
+                }}
+                className="mt-4 w-full bg-indigo-600 text-white py-1.5 rounded disabled:opacity-50"
+              >
+                {loadingId === job._id ? "Applying..." : "Apply"}
+              </button>
+            )}
           </div>
         ))}
-      </div>
+      </main>
     </div>
   );
 }

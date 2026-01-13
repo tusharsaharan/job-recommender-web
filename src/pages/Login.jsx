@@ -1,44 +1,57 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
 
-function Login() {
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const login = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      localStorage.setItem("token", res.data.token);
+      navigate("/auth");
+    } catch {
+      setError("Invalid credentials");
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 px-4">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border border-white/20">
-        
-        <p className="text-sm font-medium text-indigo-600 mb-2 text-center">
-          AI-powered job matching
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
+      <form onSubmit={login} className="bg-white p-8 w-96 rounded-xl shadow-xl">
+        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
-        <h1 className="text-3xl font-bold text-center mb-2">
-          JobMatch
-        </h1>
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        <p className="text-gray-500 text-center mb-6">
-          Discover jobs tailored to your skills
-        </p>
+        <input
+          className="w-full border p-2 mb-3"
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          className="w-full border p-2 mb-5"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <button
-          onClick={() => navigate("/onboarding")}
-          className="
-            w-full
-            bg-indigo-600 text-white
-            py-3 rounded-lg
-            font-medium
-            hover:bg-indigo-700
-            hover:scale-[1.02]
-            active:scale-95
-            transition-transform
-            duration-200
-          "
-        >
-          Get Started →
+        <button className="w-full bg-indigo-600 text-white py-2 rounded">
+          Login
         </button>
 
-      </div>
+        <p className="text-sm text-center mt-4">
+          New user?{" "}
+          <span
+            className="text-indigo-600 cursor-pointer"
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </span>
+        </p>
+      </form>
     </div>
   );
 }
-
-export default Login;
