@@ -111,14 +111,6 @@ function Hero() {
         }}
         aria-hidden
       />
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(60% 55% at 12% 18%, rgba(143,236,193,0.35) 0%, rgba(143,236,193,0) 70%), radial-gradient(50% 45% at 88% 82%, rgba(47,184,138,0.30) 0%, rgba(47,184,138,0) 70%)",
-        }}
-        aria-hidden
-      />
 
       <div className="relative mx-auto flex w-full max-w-7xl items-center px-6 pb-24 pt-28 sm:px-10">
         <div className="max-w-3xl">
@@ -166,19 +158,6 @@ function Hero() {
           </motion.div>
         </div>
       </div>
-
-      {/* Decorative spline divider at the bottom of the hero */}
-      <svg
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-[-1px] h-16 w-full"
-        viewBox="0 0 1440 80"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0,40 C240,80 480,0 720,32 C960,64 1200,16 1440,48 L1440,80 L0,80 Z"
-          fill="var(--cream)"
-        />
-      </svg>
     </section>
   );
 }
