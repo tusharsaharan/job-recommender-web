@@ -145,13 +145,14 @@ function IntroSequence() {
               style={{ opacity: leftOpacity, x: leftX, rotateY: leftRotateY, transformStyle: "preserve-3d" }}
             >
               <img src={step2} alt="" className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-[#1f2724]/45" />
             </motion.figure>
             <motion.figure
               className="absolute inset-0 z-30 overflow-hidden bg-[#2f302d] shadow-[0_40px_80px_-34px_rgb(47_48_45_/_0.55)]"
               style={{ rotateX: reduce ? 0 : mainRotateX, rotateY: reduce ? 0 : mainRotateY, transformStyle: "preserve-3d" }}
             >
               <img src={heroImg} alt="" className="h-full w-full object-cover object-center" />
-              <div className="absolute inset-0 bg-[#23302c]/20" />
+              <div className="absolute inset-0 bg-[#1f2724]/45" />
               <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 text-center text-white sm:inset-x-16">
                 <p className="marker-num text-mint-light">Meet Jobly</p>
                 <h2 className="font-display mt-5 text-[clamp(2.5rem,5.5vw,5.8rem)] font-extrabold text-white [text-shadow:0_4px_28px_rgb(20_30_27_/_0.45)]">
@@ -176,6 +177,7 @@ function IntroSequence() {
               style={{ opacity: rightOpacity, x: rightX, rotateY: rightRotateY, transformStyle: "preserve-3d" }}
             >
               <img src={step3} alt="" className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-[#1f2724]/45" />
             </motion.figure>
           </motion.div>
           <ScrollProgressDots stages={INTRO_STAGES} activeIndex={activeIndex} tone="light" />
@@ -228,7 +230,7 @@ function IntroFallback() {
         <div className="relative mx-auto max-w-sm" style={{ perspective: "900px" }}>
           <figure className="relative z-20 overflow-hidden bg-[#2f302d] shadow-[0_26px_52px_-26px_rgb(47_48_45_/_0.52)]">
             <img src={heroImg} alt="People considering their next steps together" className="aspect-[4/5] w-full object-cover opacity-80" />
-            <div className="absolute inset-0 bg-[#23302c]/20" />
+            <div className="absolute inset-0 bg-[#1f2724]/45" />
             <figcaption className="absolute inset-x-6 top-1/2 -translate-y-1/2 text-center text-white flex flex-col items-center">
               <p className="marker-num text-mint-light">Meet Jobly</p>
               <p className="font-display mt-3 text-4xl font-extrabold">Find your next good fit.</p>
@@ -241,8 +243,14 @@ function IntroFallback() {
               </Link>
             </figcaption>
           </figure>
-          <figure className="absolute -left-10 top-[30%] z-10 h-40 w-32 overflow-hidden shadow-soft"><img src={step2} alt="" className="h-full w-full object-cover" /></figure>
-          <figure className="absolute -right-10 top-[12%] z-30 h-52 w-32 overflow-hidden shadow-soft"><img src={step3} alt="" className="h-full w-full object-cover" /></figure>
+          <figure className="absolute -left-10 top-[30%] z-10 h-40 w-32 overflow-hidden shadow-soft">
+            <img src={step2} alt="" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-[#1f2724]/45" />
+          </figure>
+          <figure className="absolute -right-10 top-[12%] z-30 h-52 w-32 overflow-hidden shadow-soft">
+            <img src={step3} alt="" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-[#1f2724]/45" />
+          </figure>
         </div>
       </div>
     </div>
