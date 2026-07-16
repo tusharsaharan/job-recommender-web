@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth";
 import { Cursor } from "@/components/cursor/Cursor";
+import { Footer } from "@/components/Footer";
 
 
 function NotFoundComponent() {
@@ -123,7 +124,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <div className="relative min-h-screen bg-cream text-ink">
-          <Outlet />
+          <div className="flex min-h-screen flex-col">
+            <div className="flex-1">
+              <Outlet />
+            </div>
+            <Footer />
+          </div>
           <Toaster position="bottom-right" />
           <Cursor />
         </div>

@@ -79,12 +79,6 @@ function Landing() {
       <ValueStatement />
       <JourneySection />
       <ClosingCall />
-      <footer className="border-t border-border bg-cream px-6 py-8 sm:px-10">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-sm text-ink/55">
-          <p>(c) 2026 Jobly</p>
-          <p>Better job matching for candidates and recruiters.</p>
-        </div>
-      </footer>
     </main>
   );
 }
