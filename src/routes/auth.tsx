@@ -1,0 +1,265 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { apiCall } from "@/lib/api";
+import { useAuth, type UserRole } from "@/lib/auth";
+
+export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Log in · Jobly" },
+      { name: "description", content: "Sign in or create a Jobly account." },
+    ],
+  }),
+  component: AuthPage,
+});
+
+// Palette locked to the reference site (job-recommender-web-pfim.vercel.app).
+const CREAM = "#F3FBF6";
+const CREAM_SOFT = "#FFFFFF";
+const INK = "#0F2A22";
+const CORAL = "#2FB88A"; /* mint-deep — palette is mint shades only */
+const MINT = "#8FECC1";
+const MINT_HOVER = "#7CE0B2";
+
+function AuthPage() {
+  const { user, login } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) navigate({ to: "/dashboard", replace: true });
+  }, [user, navigate]);
+
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [role, setRole] = useState<UserRole>("seeker");
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (mode === "login") {
+        const data = await apiCall<{ token: string }>("/auth/login", "POST", {
+          email: form.email,
+          password: form.password,
+        });
+        const user = await apiCall<any>("/users/me", "GET", null, data.token);
+        login(user, data.token);
+        toast.success("Welcome back");
+        navigate({ to: "/dashboard" });
+      } else {
+        const body = { ...form, role };
+        await apiCall("/auth/register", "POST", body);
+        toast.success("Account created! Please log in.");
+        setMode("login");
+      }
+    } catch (err: any) {
+      toast.error(err.message ?? "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const isLogin = mode === "login";
+
+  return (
+    <main
+      className="relative min-h-screen w-full"
+      style={{ backgroundColor: CREAM, color: INK, fontFamily: "'Inter', system-ui, sans-serif" }}
+    >
+      {/* Wordmark, matching the reference's chunky rounded logo */}
+      <div className="absolute left-8 top-8 flex items-center gap-2 sm:left-12 sm:top-10">
+        <span
+          className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-extrabold transition-transform duration-200 hover:scale-105"
+          style={{ backgroundColor: CORAL, color: "#fff" }}
+        >
+          jr
+        </span>
+        <span
+          className="text-xl font-extrabold tracking-tight"
+          style={{ color: INK, fontFamily: "'Mona Sans', 'Nunito', system-ui, sans-serif" }}
+        >
+          Jobly
+        </span>
+      </div>
+
+      <div className="flex min-h-screen items-center justify-center px-6 py-24 sm:px-8">
+        <div className="w-full max-w-md">
+          <div
+            className="rounded-[2rem] p-8 transition-all duration-300 hover:-translate-y-0.5 sm:p-10"
+            style={{
+              backgroundColor: CREAM_SOFT,
+              border: "1px solid rgba(47,184,138,0.18)",
+              boxShadow: "0 30px 80px -40px rgba(47,184,138,0.35), 0 2px 8px rgba(15,42,34,0.05)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow =
+                "0 40px 90px -36px rgba(47,184,138,0.42), 0 4px 14px rgba(15,42,34,0.08)";
+              e.currentTarget.style.borderColor = "rgba(47,184,138,0.35)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow =
+                "0 30px 80px -40px rgba(47,184,138,0.35), 0 2px 8px rgba(15,42,34,0.05)";
+              e.currentTarget.style.borderColor = "rgba(47,184,138,0.18)";
+            }}
+          >
+            <p
+              className="mb-3 text-[11px] font-medium uppercase"
+              style={{
+                color: `${INK}8C`,
+                letterSpacing: "0.24em",
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              }}
+            >
+              {isLogin ? "Log in · Jobly" : "Sign up · Jobly"}
+            </p>
+            <h1
+              className="text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl"
+              style={{
+                color: INK,
+                fontFamily: "'Mona Sans', 'Nunito', system-ui, sans-serif",
+              }}
+            >
+              {isLogin ? "Hey, welcome back." : "Nice to meet you."}
+            </h1>
+            <p
+              className="mt-4 text-[15px] leading-relaxed"
+              style={{ color: `${INK}A6` }}
+            >
+              {isLogin
+                ? "A friendlier way to find work. Sign in to pick up where you left off."
+                : "Set up your account in a minute — then dive in."}
+            </p>
+
+            <form onSubmit={onSubmit} className="mt-8 space-y-5">
+              {mode === "signup" && (
+                <>
+                  <UField
+                    label="Your name"
+                    placeholder="Ada Lovelace"
+                    value={form.name}
+                    onChange={(v) => setForm({ ...form, name: v })}
+                    required
+                  />
+                  <div>
+                    <span
+                      className="text-[11px] font-semibold uppercase"
+                      style={{
+                        color: `${INK}B3`,
+                        letterSpacing: "0.16em",
+                        fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                      }}
+                    >
+                      I am a
+                    </span>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {(["seeker", "recruiter"] as const).map((r) => (
+                        <button
+                          type="button"
+                          key={r}
+                          onClick={() => setRole(r)}
+                          className="rounded-full px-4 py-2.5 text-sm font-bold capitalize transition-all duration-200 hover:-translate-y-[1px]"
+                          style={
+                            role === r
+                              ? { backgroundColor: INK, color: CREAM }
+                              : { backgroundColor: "rgba(59,42,31,0.06)", color: `${INK}CC` }
+                          }
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <UField
+                label="Email"
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={(v) => setForm({ ...form, email: v })}
+                required
+              />
+              <UField
+                label="Password"
+                type="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={(v) => setForm({ ...form, password: v })}
+                required
+              />
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 w-full rounded-full py-3.5 text-[15px] font-extrabold tracking-wide transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_16px_30px_-16px_rgba(14,17,22,0.28)] disabled:opacity-50"
+                style={{ backgroundColor: MINT, color: INK }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = MINT_HOVER)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = MINT)}
+              >
+                {loading ? "Hold on…" : isLogin ? "Log in" : "Sign up"}
+              </button>
+            </form>
+          </div>
+
+          <p className="mt-6 text-center text-sm font-medium" style={{ color: `${INK}A6` }}>
+            {isLogin ? "New here? " : "Already a member? "}
+            <button
+              onClick={() => setMode(isLogin ? "signup" : "login")}
+              className="font-extrabold underline underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: CORAL }}
+            >
+              {isLogin ? "Create an account" : "Log in"}
+            </button>
+          </p>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function UField({
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span
+        className="text-[11px] font-semibold uppercase"
+        style={{
+          color: `${INK}B3`,
+          letterSpacing: "0.16em",
+          fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+        }}
+      >
+        {label}
+      </span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="mt-2 w-full rounded-2xl px-4 py-3 text-[15px] transition-colors duration-200 focus:outline-none focus:ring-2"
+        style={{
+          backgroundColor: "#fff",
+          color: INK,
+          border: "1px solid rgba(14,17,22,0.12)",
+        }}
+      />
+    </label>
+  );
+}
