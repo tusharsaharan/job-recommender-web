@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 /**
- * A small mint dot that trails the pointer. Native cursor stays visible.
- * Respects reduced-motion and coarse pointers.
+ * A soft mint tinge that gently follows the pointer — no visible dot, just
+ * a diffuse green wash over a small part of the screen. Native cursor stays
+ * visible. Respects reduced-motion and coarse pointers.
  */
 export function Cursor() {
-  const x = useMotionValue(-100);
-  const y = useMotionValue(-100);
-  const sx = useSpring(x, { damping: 28, stiffness: 380, mass: 0.35 });
-  const sy = useSpring(y, { damping: 28, stiffness: 380, mass: 0.35 });
+  const x = useMotionValue(-1000);
+  const y = useMotionValue(-1000);
+  // Slower, softer spring so the tinge drifts rather than snaps.
+  const sx = useSpring(x, { damping: 40, stiffness: 90, mass: 0.9 });
+  const sy = useSpring(y, { damping: 40, stiffness: 90, mass: 0.9 });
   const [hover, setHover] = useState(false);
   const [enabled, setEnabled] = useState(false);
 
@@ -33,41 +35,25 @@ export function Cursor() {
 
   if (!enabled) return null;
 
+  const size = hover ? 520 : 420;
   return (
-    <>
-      {/* Soft glow halo */}
-      <motion.div
-        aria-hidden
-        style={{ translateX: sx, translateY: sy }}
-        className="pointer-events-none fixed left-0 top-0 z-[9998] -translate-x-1/2 -translate-y-1/2 rounded-full"
-      >
-        <div
-          className="rounded-full transition-all duration-200 ease-out"
-          style={{
-            width: hover ? 34 : 22,
-            height: hover ? 34 : 22,
-            background: "radial-gradient(circle, rgba(143,236,193,0.55) 0%, rgba(143,236,193,0) 70%)",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-      </motion.div>
-      {/* Crisp mint dot */}
-      <motion.div
-        aria-hidden
-        style={{ translateX: x, translateY: y }}
-        className="pointer-events-none fixed left-0 top-0 z-[9999] -translate-x-1/2 -translate-y-1/2 rounded-full"
-      >
-        <div
-          className="rounded-full transition-all duration-150 ease-out"
-          style={{
-            width: hover ? 12 : 8,
-            height: hover ? 12 : 8,
-            background: "#2FB88A",
-            boxShadow: "0 0 12px rgba(47,184,138,0.55)",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-      </motion.div>
-    </>
+    <motion.div
+      aria-hidden
+      style={{ translateX: sx, translateY: sy }}
+      className="pointer-events-none fixed left-0 top-0 z-[9998] mix-blend-multiply"
+    >
+      <div
+        className="transition-[width,height,opacity] duration-500 ease-out"
+        style={{
+          width: size,
+          height: size,
+          opacity: hover ? 0.9 : 0.65,
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle, rgba(143,236,193,0.55) 0%, rgba(143,236,193,0.22) 35%, rgba(143,236,193,0) 70%)",
+          filter: "blur(28px)",
+        }}
+      />
+    </motion.div>
   );
 }
