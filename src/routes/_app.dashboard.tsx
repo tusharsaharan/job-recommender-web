@@ -3,7 +3,9 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-import { CountUp } from "@/components/fx/CountUp";
+import { Metric } from "@/components/dashboard/Metric";
+import { PipelineBar, PipelineDatum } from "@/components/dashboard/PipelineBar";
+import { EmptyGraphic, StatusLabel } from "@/components/dashboard/StatusLabel";
 import { useAuth } from "@/lib/auth";
 import { apiCall } from "@/lib/api";
 
@@ -273,73 +275,6 @@ function CandidateOverview({
         </section>
       </section>
     </main>
-  );
-}
-
-function Metric({
-  label,
-  suffix = "",
-  value,
-}: {
-  label: string;
-  suffix?: string;
-  value: number;
-}) {
-  return (
-    <div className="py-6 sm:px-6 sm:first:pl-0 lg:px-7">
-      <dt className="text-sm font-semibold text-ink/60">{label}</dt>
-      <dd className="font-display mt-3 text-4xl text-ink">
-        <CountUp to={value} />{suffix}
-      </dd>
-    </div>
-  );
-}
-
-function PipelineBar({ color, label, total, value }: { color: string; label: string; total: number; value: number }) {
-  const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-4 text-sm">
-        <span className="font-semibold text-ink/75">{label}</span>
-        <span className="font-mono text-xs text-ink/55">{value} | {percentage}%</span>
-      </div>
-      <div className="mt-2 h-1.5 bg-ink/10">
-        <motion.div
-          className={`h-full ${color}`}
-          initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function PipelineDatum({ label, tone = "text-ink", value }: { label: string; tone?: string; value: number }) {
-  return (
-    <div className="border-l-2 border-ink/12 pl-4">
-      <p className="marker-num">{label}</p>
-      <p className={`font-display mt-2 text-4xl ${tone}`}>{value}</p>
-    </div>
-  );
-}
-
-function StatusLabel({ status }: { status?: string }) {
-  const normalized = status || "applied";
-  const className = normalized === "shortlisted"
-    ? "border-[#57CFA0] bg-[#D6F5E5] text-[#0F5A44]"
-    : normalized === "rejected"
-      ? "border-[#B7DFCE] bg-[#F1FAF5] text-[#2F5E4E]"
-      : "border-[#C7EFDD] bg-[#EFFBF4] text-[#1F8F6A]";
-
-  return <span className={`w-fit rounded-md border px-2.5 py-1 text-xs font-semibold capitalize ${className}`}>{normalized}</span>;
-}
-
-function EmptyGraphic({ label }: { label: string }) {
-  return (
-    <div className="flex h-full items-center justify-center border-y border-dashed border-border px-6 text-center text-sm leading-6 text-ink/55">
-      {label}
-    </div>
   );
 }
 
