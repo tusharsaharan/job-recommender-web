@@ -128,10 +128,10 @@ function ApplicationsPage() {
 
 function PipelineCount({ label, tone = "text-ink", value }: { label: string; tone?: string; value: number }) {
   return (
-    <div className="py-5 sm:px-6 sm:first:pl-0">
-      <p className="marker-num">{label}</p>
+    <button type="button" className="group flex w-full flex-col items-start py-5 px-4 text-left transition-colors hover:bg-panel sm:px-6 sm:first:pl-0">
+      <p className="marker-num transition-colors group-hover:text-mint-deep">{label}</p>
       <p className={`font-display mt-2 text-4xl ${tone}`}>{value}</p>
-    </div>
+    </button>
   );
 }
 

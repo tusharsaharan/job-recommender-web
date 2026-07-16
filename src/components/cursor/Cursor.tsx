@@ -47,7 +47,7 @@ export function Cursor() {
         style={{
           width: size,
           height: size,
-          opacity: hover ? 0.9 : 0.65,
+          opacity: hover ? 0.09 : 0.065,
           transform: "translate(-50%, -50%)",
           background:
             "radial-gradient(circle, rgba(143,236,193,0.55) 0%, rgba(143,236,193,0.22) 35%, rgba(143,236,193,0) 70%)",

@@ -14,13 +14,13 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-// Palette locked to the reference site (job-recommender-web-pfim.vercel.app).
-const CREAM = "#F3FBF6";
+// Palette — white-first with subtle mint accents.
+const CREAM = "#FFFFFF";
 const CREAM_SOFT = "#FFFFFF";
 const INK = "#0F2A22";
-const CORAL = "#2FB88A"; /* mint-deep — palette is mint shades only */
-const MINT = "#8FECC1";
-const MINT_HOVER = "#7CE0B2";
+const CORAL = "#2FB88A"; /* mint-deep accent */
+const MINT = "#D4F5E5"; /* lighter mint for big button */
+const MINT_HOVER = "#8FECC1"; /* standard mint on hover */
 
 function AuthPage() {
   const { user, login } = useAuth();
@@ -90,18 +90,18 @@ function AuthPage() {
             className="rounded-[2rem] p-8 transition-all duration-300 hover:-translate-y-0.5 sm:p-10"
             style={{
               backgroundColor: CREAM_SOFT,
-              border: "1px solid rgba(47,184,138,0.18)",
-              boxShadow: "0 30px 80px -40px rgba(47,184,138,0.35), 0 2px 8px rgba(15,42,34,0.05)",
+              border: "1px solid rgba(15,42,34,0.10)",
+              boxShadow: "0 30px 80px -40px rgba(15,42,34,0.12), 0 2px 8px rgba(15,42,34,0.04)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow =
-                "0 40px 90px -36px rgba(47,184,138,0.42), 0 4px 14px rgba(15,42,34,0.08)";
-              e.currentTarget.style.borderColor = "rgba(47,184,138,0.35)";
+                "0 40px 90px -36px rgba(15,42,34,0.18), 0 4px 14px rgba(15,42,34,0.06)";
+              e.currentTarget.style.borderColor = "rgba(15,42,34,0.18)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow =
-                "0 30px 80px -40px rgba(47,184,138,0.35), 0 2px 8px rgba(15,42,34,0.05)";
-              e.currentTarget.style.borderColor = "rgba(47,184,138,0.18)";
+                "0 30px 80px -40px rgba(15,42,34,0.12), 0 2px 8px rgba(15,42,34,0.04)";
+              e.currentTarget.style.borderColor = "rgba(15,42,34,0.10)";
             }}
           >
             <p

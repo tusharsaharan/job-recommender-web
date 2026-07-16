@@ -119,6 +119,9 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  const pathname = router.state.location.pathname;
+  const isAuthPage = pathname === "/auth";
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -128,7 +131,7 @@ function RootComponent() {
             <div className="flex-1">
               <Outlet />
             </div>
-            <Footer />
+            {!isAuthPage && <Footer />}
           </div>
           <Toaster position="bottom-right" />
           <Cursor />

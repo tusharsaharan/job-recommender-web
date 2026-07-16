@@ -49,16 +49,17 @@
 :root {
   --radius: 0.75rem;
 
-  /* Mono-mint palette — only shades of #8FECC1 plus neutral ink. */
-  --mint: oklch(0.90 0.11 165);         /* #8FECC1 primary */
+  /* Cleaned palette — white-first with very subtle mint accents. */
+  --mint: oklch(0.90 0.11 165);         /* #8FECC1 primary accent */
   --mint-hover: oklch(0.85 0.115 165);  /* deeper mint on hover */
   --mint-deep: oklch(0.72 0.13 168);    /* strong mint for text accents */
-  --mint-soft: oklch(0.955 0.045 165);  /* pale mint wash */
-  --mint-tint: oklch(0.985 0.02 165);   /* faintest mint tint (panels) */
-  --cream: oklch(0.992 0.012 165);      /* near-white minty page bg */
-  --panel: var(--mint-tint);
+  --mint-soft: oklch(0.99 0.011 165);   /* barely-there mint wash (reduced 75%) */
+  --mint-tint: oklch(0.996 0.005 165);  /* nearly invisible mint tint (reduced 75%) */
+  --mint-light: oklch(0.95 0.06 165);   /* lighter mint for large buttons */
+  --cream: oklch(1 0 0);                /* pure white page bg */
+  --panel: oklch(0.985 0.002 165);      /* very faint panel bg */
   --ink: oklch(0.24 0.03 175);          /* deep teal-ink for text */
-  --warm: var(--mint-deep);             /* legacy alias — no coral */
+  --warm: var(--mint-deep);             /* legacy alias */
   --warm-hover: var(--mint-hover);
   --butter: var(--mint-soft);
   --lime: var(--mint);
@@ -70,7 +71,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: var(--ink);
   --primary: var(--ink);
-  --primary-foreground: var(--cream);
+  --primary-foreground: oklch(1 0 0);
   --secondary: var(--panel);
   --secondary-foreground: var(--ink);
   --muted: var(--panel);
@@ -79,8 +80,8 @@
   --accent-foreground: var(--ink);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.24 0.03 175 / 12%);
-  --input: oklch(0.24 0.03 175 / 16%);
+  --border: oklch(0.24 0.03 175 / 10%);
+  --input: oklch(0.24 0.03 175 / 12%);
   --ring: var(--mint);
 
   --chart-1: var(--mint);
@@ -89,17 +90,17 @@
   --chart-4: oklch(0.80 0.10 168);
   --chart-5: oklch(0.60 0.10 172);
 
-  --sidebar: var(--cream);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: var(--ink);
   --sidebar-primary: var(--ink);
-  --sidebar-primary-foreground: var(--cream);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: var(--panel);
   --sidebar-accent-foreground: var(--ink);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--mint);
 
-  --shadow-soft: 0 20px 44px -28px oklch(0.24 0.03 175 / 0.18), 0 2px 6px oklch(0.24 0.03 175 / 0.05);
-  --shadow-lift: 0 26px 54px -28px oklch(0.24 0.03 175 / 0.24), 0 4px 10px oklch(0.24 0.03 175 / 0.07);
+  --shadow-soft: 0 20px 44px -28px oklch(0.24 0.03 175 / 0.12), 0 2px 6px oklch(0.24 0.03 175 / 0.04);
+  --shadow-lift: 0 26px 54px -28px oklch(0.24 0.03 175 / 0.18), 0 4px 10px oklch(0.24 0.03 175 / 0.05);
 }
 
 @layer base {
@@ -172,7 +173,7 @@
   justify-content: center;
   min-height: 3rem;
   border-radius: 999px;
-  background: var(--mint);
+  background: var(--mint-light);
   color: var(--ink);
   padding: 0.75rem 1.25rem;
   font-weight: 800;
@@ -192,7 +193,7 @@
   }
   &:hover::before { transform: translateX(120%); }
   &:hover {
-    background: var(--mint-hover);
+    background: var(--mint);
     box-shadow: 0 18px 34px -18px oklch(0.18 0.012 260 / 0.24);
     transform: translateY(-1px) rotate(-0.4deg);
   }
@@ -314,7 +315,7 @@
 @utility hairline { border: 1px solid var(--border); }
 
 @utility paper-card {
-  background: #F3FBF6;
+  background: #FAFCFB;
   box-shadow:
     0 1px 2px oklch(0 0 0 / 0.06),
     0 30px 60px -30px oklch(0 0 0 / 0.2);

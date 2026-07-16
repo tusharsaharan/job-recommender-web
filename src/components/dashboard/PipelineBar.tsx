@@ -42,9 +42,9 @@ export function PipelineDatum({
   value: number;
 }) {
   return (
-    <div className="border-l-2 border-ink/12 pl-4">
-      <p className="marker-num">{label}</p>
+    <button type="button" className="group flex flex-col items-start rounded-md p-3 -ml-3 border-l-2 border-transparent text-left transition-colors hover:bg-panel hover:border-mint-deep">
+      <p className="marker-num transition-colors group-hover:text-mint-deep">{label}</p>
       <p className={`font-display mt-2 text-4xl ${tone}`}>{value}</p>
-    </div>
+    </button>
   );
 }
