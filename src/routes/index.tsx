@@ -150,8 +150,8 @@ function IntroSequence() {
               className="absolute inset-0 z-30 overflow-hidden bg-[#2f302d] shadow-[0_40px_80px_-34px_rgb(47_48_45_/_0.55)]"
               style={{ rotateX: reduce ? 0 : mainRotateX, rotateY: reduce ? 0 : mainRotateY, transformStyle: "preserve-3d" }}
             >
-              <img src={heroImg} alt="" className="h-full w-full object-cover object-[center_52%] opacity-80" />
-              <div className="absolute inset-0 bg-[#23302c]/42" />
+              <img src={heroImg} alt="" className="h-full w-full object-cover object-center" />
+              <div className="absolute inset-0 bg-[#23302c]/20" />
               <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 text-center text-white sm:inset-x-16">
                 <p className="marker-num text-mint-light">A clearer way forward</p>
                 <p className="font-display mt-4 text-[clamp(2.1rem,4.4vw,4.6rem)]">Work that feels like yours.</p>
@@ -358,38 +358,63 @@ function OpportunitySequence() {
   const [sceneFrame, setSceneFrame] = useState(0);
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const gridTopY = useTransform(scrollYProgress, [0, 0.12, 0.18, 0.26], [0, 0, -66, -280]);
-  const gridBottomY = useTransform(scrollYProgress, [0, 0.12, 0.18, 0.26], [0, 0, 48, 268]);
-  const gridTopX = useTransform(scrollYProgress, [0, 0.12, 0.18, 0.26], [0, 0, -26, -150]);
-  const gridBottomX = useTransform(scrollYProgress, [0, 0.12, 0.18, 0.26], [0, 0, 32, 158]);
-  const openingCopyY = useTransform(scrollYProgress, [0.09, 0.15], [0, -28]);
-  const cardX = useTransform(scrollYProgress, [0, 0.14, 0.24, 0.34, 0.44, 0.65, 0.73, 0.86, 1], [0, 0, 0, -305, -305, -305, -305, -290, -290]);
-  const cardY = useTransform(scrollYProgress, [0, 0.14, 0.24, 0.34, 0.44, 0.65, 0.72, 0.8, 0.88, 1], [0, 0, 0, -10, -56, -52, 0, 44, 68, 80]);
-  const cardScaleX = useTransform(scrollYProgress, [0, 0.1, 0.22, 0.34, 0.44, 0.65, 0.8, 1], [0.74, 0.74, 0.96, 1, 1, 1, 0.72, 0.56]);
-  const cardScaleY = useTransform(scrollYProgress, [0, 0.1, 0.22, 0.34, 0.44, 0.65, 0.8, 1], [0.42, 0.42, 0.68, 0.98, 1, 1, 0.68, 0.52]);
-  const cardRotateY = useTransform(scrollYProgress, [0, 0.22, 0.44, 0.72, 1], [0, -3, 0, -2, -8]);
-  const cardRotateX = useTransform(scrollYProgress, [0, 0.24, 0.5, 0.78, 1], [2, 0, 0, 5, 9]);
-  const messageContentY = useTransform(scrollYProgress, [0.12, 0.15], [0, -18]);
-  const applicationContentY = useTransform(scrollYProgress, [0.24, 0.29], [24, 0]);
-  const rightCopyY = useTransform(scrollYProgress, [0.37, 0.41], [32, 0]);
-  const folderX = useTransform(scrollYProgress, [0.55, 0.61, 0.69, 0.78, 1], [-80, -154, -258, -292, -292]);
-  const folderY = useTransform(scrollYProgress, [0.55, 0.61, 0.69, 0.78, 1], [270, 185, 80, 20, 20]);
-  const folderScale = useTransform(scrollYProgress, [0.55, 0.61, 0.69, 0.78, 1], [0.4, 0.58, 0.83, 1, 1]);
-  const folderRotateY = useTransform(scrollYProgress, [0.55, 0.61, 0.69, 0.78, 1], [16, 11, 4, 0, 0]);
-  const folderRotateX = useTransform(scrollYProgress, [0.55, 0.61, 0.69, 0.78, 1], [10, 6, 2, 0, 0]);
+
+  /* ── Grid tile scatter ── */
+  const gridTopY = useTransform(scrollYProgress, [0, 0.14, 0.2, 0.28], [0, 0, -66, -280]);
+  const gridBottomY = useTransform(scrollYProgress, [0, 0.14, 0.2, 0.28], [0, 0, 48, 268]);
+  const gridTopX = useTransform(scrollYProgress, [0, 0.14, 0.2, 0.28], [0, 0, -26, -150]);
+  const gridBottomX = useTransform(scrollYProgress, [0, 0.14, 0.2, 0.28], [0, 0, 32, 158]);
+
+  /* ── Opening text ── */
+  const openingCopyY = useTransform(scrollYProgress, [0.09, 0.16], [0, -28]);
+
+  /* ── "Hiring plan" tile in grid: fades out as card appears ── */
+  const hiringTileOpacity = useTransform(scrollYProgress, [0, 0.06, 0.1], [1, 1, 0]);
+
+  /* ── Floating card: position, scale, rotation ── */
+  const cardOpacity = useTransform(scrollYProgress, [0, 0.06, 0.12], [0, 0, 1]);
+  const cardX = useTransform(scrollYProgress, [0, 0.16, 0.26, 0.36, 0.46, 0.65, 0.73, 0.86, 1], [0, 0, 0, -305, -305, -305, -305, -290, -290]);
+  const cardY = useTransform(scrollYProgress, [0, 0.16, 0.26, 0.36, 0.46, 0.65, 0.72, 0.8, 0.88, 1], [0, 0, 0, -10, -56, -52, 0, 44, 68, 80]);
+  const cardScaleX = useTransform(scrollYProgress, [0, 0.06, 0.12, 0.24, 0.36, 0.46, 0.65, 0.8, 1], [0.62, 0.62, 0.78, 0.96, 1, 1, 1, 0.72, 0.56]);
+  const cardScaleY = useTransform(scrollYProgress, [0, 0.06, 0.12, 0.24, 0.36, 0.46, 0.65, 0.8, 1], [0.3, 0.3, 0.52, 0.72, 0.98, 1, 1, 0.68, 0.52]);
+  const cardRotateY = useTransform(scrollYProgress, [0, 0.24, 0.46, 0.72, 1], [0, -3, 0, -2, -8]);
+  const cardRotateX = useTransform(scrollYProgress, [0, 0.26, 0.52, 0.78, 1], [2, 0, 0, 5, 9]);
+
+  /* ── Card inner content fades ── */
+  const messageContentY = useTransform(scrollYProgress, [0.14, 0.18], [0, -18]);
+  const applicationContentY = useTransform(scrollYProgress, [0.26, 0.32], [24, 0]);
+
+  /* ── Right-side copy ── */
+  const rightCopyY = useTransform(scrollYProgress, [0.39, 0.43], [32, 0]);
+
+  /* ── Folder entrance ── */
+  const folderX = useTransform(scrollYProgress, [0.57, 0.63, 0.71, 0.8, 1], [-80, -154, -258, -292, -292]);
+  const folderY = useTransform(scrollYProgress, [0.57, 0.63, 0.71, 0.8, 1], [270, 185, 80, 20, 20]);
+  const folderScale = useTransform(scrollYProgress, [0.57, 0.63, 0.71, 0.8, 1], [0.4, 0.58, 0.83, 1, 1]);
+  const folderRotateY = useTransform(scrollYProgress, [0.57, 0.63, 0.71, 0.8, 1], [16, 11, 4, 0, 0]);
+  const folderRotateX = useTransform(scrollYProgress, [0.57, 0.63, 0.71, 0.8, 1], [10, 6, 2, 0, 0]);
+
+  /* ── Card slides into folder (peeks from top) ── */
+  const cardIntoFolderY = useTransform(scrollYProgress, [0.78, 0.86, 0.94], [0, -60, -120]);
+  const cardIntoFolderScale = useTransform(scrollYProgress, [0.78, 0.86, 0.94], [1, 0.68, 0.52]);
+  const cardIntoFolderOpacity = useTransform(scrollYProgress, [0.9, 0.97], [1, 0]);
+
+  /* ── Folder copy text ── */
   const folderCopyY = useTransform(scrollYProgress, [0.9, 0.94], [28, 0]);
+
   const reduce = Boolean(shouldReduceMotion);
-  const showWorkspace = sceneFrame < 2;
-  const showGrid = sceneFrame < 3;
-  const showMessage = sceneFrame < 2;
-  const showApplication = sceneFrame >= 3 && sceneFrame < 11;
-  const showApplicationCopy = sceneFrame >= 4 && sceneFrame < 9;
-  const showFolder = sceneFrame >= 6;
-  const showFolderCopy = sceneFrame >= 11;
+  const showWorkspace = sceneFrame < 3;
+  const showGrid = sceneFrame < 4;
+  const showMessage = sceneFrame >= 2 && sceneFrame < 4;
+  const showApplication = sceneFrame >= 4 && sceneFrame < 12;
+  const showApplicationCopy = sceneFrame >= 5 && sceneFrame < 10;
+  const showFolder = sceneFrame >= 7;
+  const showFolderCopy = sceneFrame >= 12;
+  const showCardInFolder = sceneFrame >= 10;
 
   useMotionValueEvent(scrollYProgress, "change", (latest: number) => {
     const nextIndex = Math.min(OPPORTUNITY_STAGES.length - 1, Math.floor(latest * OPPORTUNITY_STAGES.length));
-    const nextFrame = Math.min(11, Math.floor(latest * 12));
+    const nextFrame = Math.min(13, Math.floor(latest * 14));
     setActiveIndex((current) => (current === nextIndex ? current : nextIndex));
     setSceneFrame((current) => (current === nextFrame ? current : nextFrame));
   });
@@ -414,25 +439,45 @@ function OpportunitySequence() {
               <h2 className="font-display mt-4 max-w-xl text-[clamp(2.45rem,4.4vw,4.75rem)] leading-[0.98] text-white">One message can start a good application.</h2>
             </motion.div>
 
+            {/* Grid of 6 equal workspace tiles */}
             <motion.div className="absolute inset-x-0 bottom-0 top-[52%] z-10 mx-auto grid max-w-7xl grid-cols-3 gap-4 px-10" style={{ opacity: showGrid ? 1 : 0 }}>
               {WORKSPACE_TILES.map((title, index) => (
-                <motion.article key={title} className="min-h-32 border border-white/15 bg-[#f7f8f6]/95 p-5 text-[#2f302d] shadow-[0_20px_40px_-26px_rgb(0_0_0_/_0.5)]" style={{ x: index < 3 ? gridTopX : gridBottomX, y: index < 3 ? gridTopY : gridBottomY }}>
+                <motion.article
+                  key={title}
+                  className="min-h-32 border border-white/15 bg-[#f7f8f6]/95 p-5 text-[#2f302d] shadow-[0_20px_40px_-26px_rgb(0_0_0_/_0.5)]"
+                  style={{
+                    x: index < 3 ? gridTopX : gridBottomX,
+                    y: index < 3 ? gridTopY : gridBottomY,
+                    opacity: index === 1 ? hiringTileOpacity : 1,
+                  }}
+                >
                   <p className="text-sm font-semibold">{title}</p>
                   <div className="mt-6 space-y-2.5"><div className="h-2 w-4/5 bg-[#2f302d]/15" /><div className="h-2 w-full bg-[#2f302d]/10" /><div className="h-2 w-3/5 bg-[#2f302d]/10" /></div>
                 </motion.article>
               ))}
             </motion.div>
 
+            {/* Floating card — starts invisible, fades in as Hiring plan tile fades out */}
             <motion.div
-              className="absolute left-1/2 top-[66%] z-30 h-[400px] w-[500px] -translate-x-1/2 -translate-y-1/2 overflow-hidden border border-[#d9ddd9] bg-[#fffefd] text-[#2f302d] shadow-[0_36px_70px_-32px_rgb(47_48_45_/_0.55)]"
-              style={{ opacity: sceneFrame < 11 ? 1 : 0, x: cardX, y: cardY, scaleX: cardScaleX, scaleY: cardScaleY, rotateY: cardRotateY, rotateX: cardRotateX, transformOrigin: "center center", transformStyle: "preserve-3d" }}
+              className="absolute left-1/2 top-[58%] z-30 h-[400px] w-[500px] -translate-x-1/2 -translate-y-1/2 overflow-hidden border border-[#d9ddd9] bg-[#fffefd] text-[#2f302d] shadow-[0_36px_70px_-32px_rgb(47_48_45_/_0.55)]"
+              style={{
+                opacity: showCardInFolder ? cardIntoFolderOpacity : cardOpacity,
+                x: cardX,
+                y: showCardInFolder ? cardIntoFolderY : cardY,
+                scaleX: cardScaleX,
+                scaleY: showCardInFolder ? cardIntoFolderScale : cardScaleY,
+                rotateY: cardRotateY,
+                rotateX: cardRotateX,
+                transformOrigin: "center center",
+                transformStyle: "preserve-3d",
+              }}
             >
               <motion.div className="absolute inset-0 flex flex-col justify-center p-9" style={{ opacity: showMessage ? 1 : 0, y: messageContentY }}>
                 <p className="marker-num text-[#628c80]">Candidate message</p>
                 <p className="mt-3 text-2xl font-semibold">Ari Patel</p>
                 <p className="mt-4 max-w-md text-xl leading-relaxed text-[#2f302d]/72">The fit looks strong. I would love to hear more about the product work.</p>
               </motion.div>
-              <motion.div className="absolute inset-0 p-9" style={{ opacity: showApplication ? 1 : 0, y: applicationContentY }}>
+              <motion.div className="absolute inset-0 p-9" style={{ opacity: showApplication || showCardInFolder ? 1 : 0, y: applicationContentY }}>
                 <div className="flex items-start justify-between gap-4"><div><p className="marker-num text-[#628c80]">Jobly application</p><p className="font-display mt-2 text-4xl">Ari Patel</p></div><span className="rounded-full bg-[#d7ebe4] px-3 py-1 text-xs font-bold text-[#40685e]">Submitted</span></div>
                 <p className="mt-3 text-base text-[#2f302d]/64">Senior React Developer</p>
                 <div className="mt-7 space-y-3"><div className="h-2 w-full bg-[#2f302d]/15" /><div className="h-2 w-4/5 bg-[#2f302d]/11" /><div className="h-2 w-3/5 bg-[#2f302d]/11" /></div>
@@ -440,6 +485,7 @@ function OpportunitySequence() {
               </motion.div>
             </motion.div>
 
+            {/* Right-side copy: "Turn a good signal…" */}
             <motion.div
               className="absolute left-[62%] top-[25%] z-20 w-[min(28vw,390px)]"
               style={{ opacity: showApplicationCopy ? 1 : 0, y: rightCopyY }}
@@ -449,13 +495,16 @@ function OpportunitySequence() {
               <p className="mt-6 text-lg leading-relaxed text-ink/68">The role, the reason it fits, and the work behind the candidate stay together from the first note to the submitted application.</p>
             </motion.div>
 
-            <motion.div className="absolute left-1/2 top-[61%] z-20 h-[500px] w-[590px] -translate-x-1/2 -translate-y-1/2" style={{ opacity: showFolder ? 1 : 0, x: folderX, y: folderY, scale: folderScale, rotateY: folderRotateY, rotateX: folderRotateX, transformStyle: "preserve-3d" }}>
+            {/* Folder — back panel */}
+            <motion.div className="absolute left-1/2 top-1/2 z-20 h-[500px] w-[590px] -translate-x-1/2 -translate-y-1/2" style={{ opacity: showFolder ? 1 : 0, x: folderX, y: folderY, scale: folderScale, rotateY: folderRotateY, rotateX: folderRotateX, transformStyle: "preserve-3d" }}>
               <div className="absolute bottom-0 left-[7%] right-[4%] h-[55%] border border-[#86b4a6] bg-[#a3cfc2] shadow-[0_28px_60px_-30px_rgb(47_48_45_/_0.42)]"><div className="absolute -top-10 left-8 h-10 w-[42%] rounded-t-sm border border-b-0 border-[#86b4a6] bg-[#a3cfc2]" /></div>
             </motion.div>
-            <motion.div className="pointer-events-none absolute left-1/2 top-[61%] z-40 h-[500px] w-[590px] -translate-x-1/2 -translate-y-1/2" style={{ opacity: showFolder ? 1 : 0, x: folderX, y: folderY, scale: folderScale, rotateY: folderRotateY, rotateX: folderRotateX, transformStyle: "preserve-3d" }}>
+            {/* Folder — front flap (overlays card as it slides in) */}
+            <motion.div className="pointer-events-none absolute left-1/2 top-1/2 z-40 h-[500px] w-[590px] -translate-x-1/2 -translate-y-1/2" style={{ opacity: showFolder ? 1 : 0, x: folderX, y: folderY, scale: folderScale, rotateY: folderRotateY, rotateX: folderRotateX, transformStyle: "preserve-3d" }}>
               <div className="absolute bottom-0 left-[7%] right-[4%] h-[49%] border border-[#86b4a6] bg-[#b8ddd2]" style={{ clipPath: "polygon(0 13%, 100% 0, 100% 100%, 0 100%)" }} />
             </motion.div>
 
+            {/* Folder copy text: "File the application…" */}
             <motion.div className="absolute left-[62%] top-[25%] z-50 w-[min(28vw,390px)]" style={{ opacity: showFolderCopy ? 1 : 0, y: folderCopyY }}>
               <p className="marker-num text-[#628c80]">Keep the momentum</p>
               <h2 className="font-display mt-5 text-[clamp(2.65rem,4vw,4.7rem)] leading-[0.98]">File the application without losing the story.</h2>
