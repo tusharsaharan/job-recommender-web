@@ -10,7 +10,7 @@ test.describe("Authentication flow", () => {
 
   test("should load the landing page successfully", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("h1")).toContainText("Jobly helps you find the role");
+    await expect(page.locator("h1").first()).toContainText("Find your next good fit.");
   });
 
   test("should navigate to auth and show login form", async ({ page }) => {
@@ -22,7 +22,7 @@ test.describe("Authentication flow", () => {
   test("should return to the landing page from auth", async ({ page }) => {
     await page.getByRole("link", { name: "Back to home" }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.locator("h1")).toContainText("Jobly helps you find the role");
+    await expect(page.locator("h1").first()).toContainText("Find your next good fit.");
   });
 
   test("should fail login with wrong credentials", async ({ page }) => {

@@ -45,7 +45,11 @@ test.describe("Recruiter E2E workflow", () => {
     await page.fill("input[placeholder='e.g. 2']", "3");
     
     await page.click("button:has-text('Publish role')");
-    // Verify successful redirection to applicants page
+    // Verify successful redirection to dashboard page
+    await expect(page).toHaveURL(/.*dashboard/);
+    
+    // Click applicants navigation link to go to /applicants
+    await page.click("nav a:has-text('Applicants')");
     await expect(page).toHaveURL(/.*applicants/);
     
     // 4. View applicants (already on applicants page)

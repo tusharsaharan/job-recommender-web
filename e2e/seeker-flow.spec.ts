@@ -44,7 +44,7 @@ test.describe("Seeker E2E workflow", () => {
     await fileChooser.setFiles(path.join(__dirname, "fixtures", "mock-resume.pdf"));
     
     // Wait for upload complete and parsed data to render
-    await expect(page.locator("text=javascript")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text='javascript'")).toBeVisible({ timeout: 15000 });
 
     // 4. Navigate to Jobs
     await page.click("nav a:has-text('Jobs')");
