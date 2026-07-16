@@ -42,13 +42,9 @@ function ProfilePage() {
       <section className="mt-4 border-b border-border pb-10">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <h1 className="font-display text-[clamp(3rem,7vw,6rem)]">Your <em className="text-lime">profile.</em></h1>
+            <h1 className="font-display mt-4 text-[clamp(2.7rem,5.4vw,5.5rem)] text-ink">Your profile.</h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-ink/65">The details JobMatch uses across your workspace.</p>
           </div>
-          <span className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 font-mono text-xs uppercase tracking-widest text-ink/70">
-            <Sparkles className="h-4 w-4 text-warm" aria-hidden="true" />
-            {isRecruiter ? "Recruiter" : "Candidate"}
-          </span>
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           <ProfileDatum icon={<Mail className="h-4 w-4" />} label="Email" value={user?.email || "Not available"} />

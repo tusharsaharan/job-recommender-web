@@ -153,9 +153,22 @@ function IntroSequence() {
               <img src={heroImg} alt="" className="h-full w-full object-cover object-center" />
               <div className="absolute inset-0 bg-[#23302c]/20" />
               <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 text-center text-white sm:inset-x-16">
-                <p className="marker-num text-mint-light">A clearer way forward</p>
-                <p className="font-display mt-4 text-[clamp(2.1rem,4.4vw,4.6rem)]">Work that feels like yours.</p>
-                <p className="mt-4 text-sm leading-6 text-white/82 sm:text-base">Keep the story, the signal, and the next conversation in one place.</p>
+                <p className="marker-num text-mint-light">Meet Jobly</p>
+                <h2 className="font-display mt-5 text-[clamp(2.5rem,5.5vw,5.8rem)] font-extrabold text-white [text-shadow:0_4px_28px_rgb(20_30_27_/_0.45)]">
+                  Find your next good fit.
+                </h2>
+                <p className="mt-5 max-w-2xl mx-auto text-sm leading-relaxed text-white/88 sm:text-base">
+                  A more thoughtful place to turn experience into opportunity, whether you are looking for a role or building a team.
+                </p>
+                <div className="mt-9 flex items-center justify-center gap-4">
+                  <Link to="/auth" className="pill-mint text-sm gap-2">
+                    Get started
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                  <a href="#statement" aria-label="Explore Jobly" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 text-white transition-transform duration-200 hover:translate-y-1 hover:bg-white/10">
+                    <ArrowDown className="h-4 w-4" aria-hidden="true" />
+                  </a>
+                </div>
               </div>
             </motion.figure>
             <motion.figure
@@ -215,10 +228,17 @@ function IntroFallback() {
         <div className="relative mx-auto max-w-sm" style={{ perspective: "900px" }}>
           <figure className="relative z-20 overflow-hidden bg-[#2f302d] shadow-[0_26px_52px_-26px_rgb(47_48_45_/_0.52)]">
             <img src={heroImg} alt="People considering their next steps together" className="aspect-[4/5] w-full object-cover opacity-80" />
-            <div className="absolute inset-0 bg-[#23302c]/42" />
-            <figcaption className="absolute inset-x-6 top-1/2 -translate-y-1/2 text-center text-white">
-              <p className="marker-num text-mint-light">A clearer way forward</p>
-              <p className="font-display mt-3 text-4xl">Work that feels like yours.</p>
+            <div className="absolute inset-0 bg-[#23302c]/20" />
+            <figcaption className="absolute inset-x-6 top-1/2 -translate-y-1/2 text-center text-white flex flex-col items-center">
+              <p className="marker-num text-mint-light">Meet Jobly</p>
+              <p className="font-display mt-3 text-4xl font-extrabold">Find your next good fit.</p>
+              <p className="mt-3 text-sm leading-relaxed text-white/88 max-w-md">
+                A more thoughtful place to turn experience into opportunity.
+              </p>
+              <Link to="/auth" className="pill-mint text-sm gap-2 mt-5">
+                Get started
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
             </figcaption>
           </figure>
           <figure className="absolute -left-10 top-[30%] z-10 h-40 w-32 overflow-hidden shadow-soft"><img src={step2} alt="" className="h-full w-full object-cover" /></figure>
