@@ -73,7 +73,7 @@ const WORKSPACE_TILES = [
   "Interview team",
 ] as const;
 
-const INTRO_STAGES = ["Welcome", "Your story", "A clearer way forward"] as const;
+const INTRO_STAGES = ["Welcome", "A clearer way forward"] as const;
 const OPPORTUNITY_STAGES = ["Message", "Shape", "Application", "Folder", "Next"] as const;
 
 function Landing() {
@@ -94,22 +94,22 @@ function IntroSequence() {
   const [activeIndex, setActiveIndex] = useState(0);
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const backdropOpacity = useTransform(scrollYProgress, [0, 0.2, 0.6, 0.72], [1, 0.58, 0.4, 0]);
-  const backdropScale = useTransform(scrollYProgress, [0, 0.6, 0.72], [1, 1.04, 1.08]);
-  const veilOpacity = useTransform(scrollYProgress, [0, 0.2, 0.6, 0.72], [0.45, 0.3, 0.18, 0]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.12, 0.25], [1, 1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.25], [0, -38]);
-  const stageOpacity = useTransform(scrollYProgress, [0.1, 0.2, 0.75, 0.93], [0, 1, 1, 0]);
-  const stageScale = useTransform(scrollYProgress, [0.1, 0.28, 0.76, 0.93], [1.2, 1, 1, 0.94]);
-  const stageY = useTransform(scrollYProgress, [0.1, 0.28, 0.76, 0.93], [84, 0, 0, -72]);
-  const mainRotateY = useTransform(scrollYProgress, [0.14, 0.5], [-14, 0]);
-  const mainRotateX = useTransform(scrollYProgress, [0.14, 0.5], [10, 0]);
-  const leftX = useTransform(scrollYProgress, [0.14, 0.46], [-180, 0]);
-  const leftRotateY = useTransform(scrollYProgress, [0.14, 0.46], [30, -8]);
-  const leftOpacity = useTransform(scrollYProgress, [0.14, 0.27, 0.75, 0.93], [0, 1, 1, 0]);
-  const rightX = useTransform(scrollYProgress, [0.14, 0.46], [180, 0]);
-  const rightRotateY = useTransform(scrollYProgress, [0.14, 0.46], [-30, 8]);
-  const rightOpacity = useTransform(scrollYProgress, [0.14, 0.27, 0.75, 0.93], [0, 1, 1, 0]);
+  const backdropOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 0.95], [1, 0.8, 0.5, 0]);
+  const backdropScale = useTransform(scrollYProgress, [0, 0.7, 0.95], [1, 1.03, 1.06]);
+  const veilOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 0.95], [0.45, 0.35, 0.2, 0]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2, 0.35], [1, 1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.35], [0, -38]);
+  const stageOpacity = useTransform(scrollYProgress, [0.2, 0.4, 0.75, 0.95], [0, 1, 1, 0]);
+  const stageScale = useTransform(scrollYProgress, [0.2, 0.45, 0.75, 0.95], [1.2, 1, 1, 0.94]);
+  const stageY = useTransform(scrollYProgress, [0.2, 0.45, 0.75, 0.95], [84, 0, 0, -72]);
+  const mainRotateY = useTransform(scrollYProgress, [0.2, 0.6], [-14, 0]);
+  const mainRotateX = useTransform(scrollYProgress, [0.2, 0.6], [10, 0]);
+  const leftX = useTransform(scrollYProgress, [0.2, 0.65], [-180, 0]);
+  const leftRotateY = useTransform(scrollYProgress, [0.2, 0.65], [30, -8]);
+  const leftOpacity = useTransform(scrollYProgress, [0.2, 0.35, 0.75, 0.95], [0, 1, 1, 0]);
+  const rightX = useTransform(scrollYProgress, [0.2, 0.65], [180, 0]);
+  const rightRotateY = useTransform(scrollYProgress, [0.2, 0.65], [-30, 8]);
+  const rightOpacity = useTransform(scrollYProgress, [0.2, 0.35, 0.75, 0.95], [0, 1, 1, 0]);
   const reduce = Boolean(shouldReduceMotion);
 
   useMotionValueEvent(scrollYProgress, "change", (latest: number) => {
@@ -124,7 +124,7 @@ function IntroSequence() {
           <IntroFallback />
         </div>
       ) : (
-        <div className="relative hidden h-[330vh] md:block">
+        <div className="relative hidden h-[220vh] md:block">
         <div className="sticky top-0 h-screen overflow-hidden" style={{ perspective: "1500px" }}>
           <motion.img
             src={heroImg}
