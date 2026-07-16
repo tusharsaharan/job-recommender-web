@@ -89,7 +89,7 @@ function ResumePage() {
           if (file) void upload(file);
         }}
         className={`surface mt-8 grid gap-6 p-6 sm:p-7 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center ${
-          dragging ? "border-[#1F8F6A] bg-mint-soft" : ""
+          dragging ? "border-[#2A9D7B] bg-mint-soft" : ""
         }`}
       >
         <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-panel text-ink">
@@ -104,7 +104,7 @@ function ResumePage() {
                 ? "Upload a newer PDF any time to refresh the profile and recalibrate future scores."
                 : "Drop a PDF here or browse to start building your candidate profile."}
           </p>
-          {hasResume && !uploading ? <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#1F8F6A]"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Parsed and ready for matching</p> : null}
+          {hasResume && !uploading ? <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#2A9D7B]"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Parsed and ready for matching</p> : null}
         </div>
         <div className="flex flex-wrap gap-3 md:justify-end">
           <input
@@ -160,7 +160,7 @@ function ResumePage() {
               <p className="marker-num">Experience</p>
               <div className="mt-5 space-y-5">
                 {experience.length > 0 ? experience.map((entry, index) => (
-                  <div key={`${entry.title}-${index}`} className="flex gap-3 border-l-2 border-[#B7F1D5] pl-4">
+                  <div key={`${entry.title}-${index}`} className="flex gap-3 border-l-2 border-[#A9EBD1] pl-4">
                     <BriefcaseBusiness className="mt-1 h-4 w-4 shrink-0 text-ink/45" aria-hidden="true" />
                     <div>
                       <p className="font-semibold text-ink">{entry.title || "Experience"}</p>
@@ -174,7 +174,7 @@ function ResumePage() {
               <p className="marker-num">Achievements</p>
               <div className="mt-5 space-y-5">
                 {achievements.length > 0 ? achievements.map((achievement, index) => (
-                  <div key={`${achievement}-${index}`} className="flex gap-3 border-l-2 border-[#2FB88A] pl-4">
+                  <div key={`${achievement}-${index}`} className="flex gap-3 border-l-2 border-[#2A9D7B] pl-4">
                     <Award className="mt-1 h-4 w-4 shrink-0 text-warm" aria-hidden="true" />
                     <p className="text-sm leading-6 text-ink/75">{achievement}</p>
                   </div>

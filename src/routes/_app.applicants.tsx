@@ -46,6 +46,11 @@ interface Applicant {
   status: "applied" | "shortlisted" | "rejected" | string;
 }
 
+interface PostedJob {
+  _id: string;
+  title?: string;
+}
+
 type SortMode = "relevance" | "newest" | "status";
 
 const statusOrder = { shortlisted: 0, applied: 1, rejected: 2 };
@@ -54,6 +59,7 @@ function ApplicantsPage() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const [applications, setApplications] = useState<Applicant[]>([]);
+  const [postedJobs, setPostedJobs] = useState<PostedJob[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [jobFilter, setJobFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -67,19 +73,36 @@ function ApplicantsPage() {
 
   useEffect(() => {
     if (!token) return;
-    apiCall<Applicant[]>("/applications/recruiter", "GET", null, token)
-      .then((response) => setApplications(Array.isArray(response) ? response : []))
-      .catch(() => setApplications([]))
-      .finally(() => setLoading(false));
+    let active = true;
+    const loadPipeline = async () => {
+      const [applicationsResult, jobsResult] = await Promise.all([
+        apiCall<Applicant[]>("/applications/recruiter", "GET", null, token).catch(() => []),
+        apiCall<PostedJob[]>("/jobs", "GET", null, token).catch(() => []),
+      ]);
+      if (!active) return;
+      setApplications(Array.isArray(applicationsResult) ? applicationsResult : []);
+      setPostedJobs(Array.isArray(jobsResult) ? jobsResult : []);
+      setLoading(false);
+    };
+
+    void loadPipeline();
+    window.addEventListener("focus", loadPipeline);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", loadPipeline);
+    };
   }, [token]);
 
   const jobs = useMemo(() => {
     const entries = new Map<string, string>();
+    postedJobs.forEach((job) => {
+      if (job._id) entries.set(job._id, job.title || "Untitled role");
+    });
     applications.forEach((application) => {
       if (application.job?._id && application.job.title) entries.set(application.job._id, application.job.title);
     });
     return [...entries.entries()];
-  }, [applications]);
+  }, [applications, postedJobs]);
 
   const visibleApplications = useMemo(() => {
     const filtered = jobFilter === "all"
@@ -101,6 +124,7 @@ function ApplicantsPage() {
     shortlisted: applications.filter((application) => application.status === "shortlisted").length,
     rejected: applications.filter((application) => application.status === "rejected").length,
   }), [applications]);
+  const selectedJobTitle = jobFilter === "all" ? "" : jobs.find(([id]) => id === jobFilter)?.[1] || "this role";
 
   async function setStatus(id: string, status: Applicant["status"]) {
     setUpdating(id);
@@ -133,8 +157,8 @@ function ApplicantsPage() {
 
       <section className="mt-8 grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0" aria-label="Pipeline counts">
         <PipelineCount label="New" value={pipeline.applied} />
-        <PipelineCount label="Shortlisted" value={pipeline.shortlisted} tone="text-[#1F8F6A]" />
-        <PipelineCount label="Closed" value={pipeline.rejected} tone="text-[#0F2A22]" />
+        <PipelineCount label="Shortlisted" value={pipeline.shortlisted} tone="text-[#2A9D7B]" />
+        <PipelineCount label="Closed" value={pipeline.rejected} tone="text-[#183A32]" />
       </section>
 
       <section className="surface-subtle mt-8 p-4 sm:p-5" aria-label="Applicant filters">
@@ -184,7 +208,7 @@ function ApplicantsPage() {
         ) : visibleApplications.length === 0 ? (
           <div className="py-14 text-center">
             <p className="font-display text-3xl text-ink">No candidates in this view.</p>
-            <p className="mt-3 text-sm text-ink/60">Change the filters or publish a role to start receiving applications.</p>
+            <p className="mt-3 text-sm text-ink/60">{selectedJobTitle ? `No candidates have applied to ${selectedJobTitle} yet.` : "Change the filters or publish a role to start receiving applications."}</p>
           </div>
         ) : (
           visibleApplications.map((application) => (
@@ -398,7 +422,7 @@ function supportedStatus(status: string) {
 }
 
 function statusClass(status: string) {
-  if (status === "shortlisted") return "border-[#57CFA0] bg-[#D6F5E5] text-[#0F5A44]";
-  if (status === "rejected") return "border-[#B7DFCE] bg-[#F1FAF5] text-[#2F5E4E]";
-  return "border-[#C7EFDD] bg-[#EFFBF4] text-[#1F8F6A]";
+  if (status === "shortlisted") return "border-[#8DDCBE] bg-[#E9FBF2] text-[#1E7058]";
+  if (status === "rejected") return "border-[#B6DCCB] bg-[#F2FAF6] text-[#335E50]";
+  return "border-[#C5EBDD] bg-[#EFFBF5] text-[#23765E]";
 }

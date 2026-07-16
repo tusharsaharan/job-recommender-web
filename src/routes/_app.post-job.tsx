@@ -169,7 +169,7 @@ function PostJobPage() {
     try {
       await apiCall("/jobs", "POST", toPayload(form), token);
       toast.success("Role posted");
-      navigate({ to: "/applicants" });
+      navigate({ to: "/dashboard" });
     } catch (error: any) {
       setErrors(error?.details ?? {});
       toast.error(error.message ?? "Could not post the role.");

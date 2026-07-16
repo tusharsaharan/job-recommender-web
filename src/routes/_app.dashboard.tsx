@@ -21,8 +21,11 @@ export const Route = createFileRoute("/_app/dashboard")({
 
 interface JobSummary {
   _id: string;
+  applicationCount?: number;
   company?: string;
   createdAt?: string;
+  latestApplicationAt?: string | null;
+  shortlistedCount?: number;
   title?: string;
 }
 
@@ -119,6 +122,32 @@ function RecruiterOverview({ name, workspace }: { name?: string; workspace: Work
         <Metric label="Shortlisted" value={workspace.shortlisted} />
       </dl>
 
+      <section className="mt-10 border-y border-border py-7" aria-labelledby="posted-roles-heading">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="marker-num">Published roles</p>
+            <h2 id="posted-roles-heading" className="font-display mt-2 text-3xl text-ink">Everything you have posted.</h2>
+          </div>
+          <Link to="/post-job" className="text-sm font-semibold text-ink hover:text-ink/65">Post another role</Link>
+        </div>
+        <div className="mt-6 divide-y divide-border">
+          {workspace.jobs.length > 0 ? workspace.jobs.map((job) => (
+            <Link
+              key={job._id}
+              to="/applicants"
+              className="hover-row grid gap-3 py-4 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-ink">{job.title || "Untitled role"}</p>
+                <p className="mt-1 truncate text-sm text-ink/55">{[job.company || "Company not specified", `Posted ${formatDate(job.createdAt)}`].join(" | ")}</p>
+              </div>
+              <p className="text-sm font-semibold text-ink/72">{formatApplicantCount(job.applicationCount)}</p>
+              <p className="text-sm text-ink/55">{job.shortlistedCount ? `${job.shortlistedCount} shortlisted` : job.latestApplicationAt ? `Last activity ${formatDate(job.latestApplicationAt)}` : "No applicants yet"}</p>
+            </Link>
+          )) : <p className="py-8 text-sm leading-6 text-ink/60">No roles have been posted yet. Publish one when you are ready to start the pipeline.</p>}
+        </div>
+      </section>
+
       <section className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(300px,0.8fr)]">
         <motion.section
           initial={{ opacity: 0, y: 12 }}
@@ -141,19 +170,19 @@ function RecruiterOverview({ name, workspace }: { name?: string; workspace: Work
                   <XAxis
                     axisLine={false}
                     dataKey="label"
-                    tick={{ fill: "#0F2A22B3", fontSize: 12 }}
+                    tick={{ fill: "#183A32B3", fontSize: 12 }}
                     tickLine={false}
                   />
                   <Tooltip
-                    contentStyle={{ border: "1px solid #C7EFDD", borderRadius: 8, boxShadow: "0 14px 30px -22px rgba(26, 38, 51, 0.35)" }}
-                    cursor={{ stroke: "#B7F1D5", strokeWidth: 1 }}
+                    contentStyle={{ border: "1px solid #C5EBDD", borderRadius: 8, boxShadow: "0 14px 30px -22px rgba(24, 58, 50, 0.28)" }}
+                    cursor={{ stroke: "#A9EBD1", strokeWidth: 1 }}
                     formatter={(value) => [value, "Applications"]}
                   />
                   <Area
                     dataKey="applications"
-                    fill="#D6F5E5"
+                    fill="#E9FBF2"
                     fillOpacity={0.82}
-                    stroke="#1F8F6A"
+                    stroke="#2A9D7B"
                     strokeWidth={2.25}
                     type="monotone"
                   />
@@ -169,9 +198,9 @@ function RecruiterOverview({ name, workspace }: { name?: string; workspace: Work
           <p className="marker-num">Pipeline composition</p>
           <h2 id="pipeline-heading" className="font-display mt-2 text-2xl text-ink">Where candidates are now</h2>
           <div className="mt-8 space-y-6">
-            <PipelineBar label="New" value={workspace.applied} total={workspace.applications.length} color="bg-[#B7F1D5]" />
-            <PipelineBar label="Shortlisted" value={workspace.shortlisted} total={workspace.applications.length} color="bg-[#57CFA0]" />
-            <PipelineBar label="Closed" value={workspace.rejected} total={workspace.applications.length} color="bg-[#7CB8A2]" />
+            <PipelineBar label="New" value={workspace.applied} total={workspace.applications.length} color="bg-[#C5EBDD]" />
+            <PipelineBar label="Shortlisted" value={workspace.shortlisted} total={workspace.applications.length} color="bg-[#8DDCBE]" />
+            <PipelineBar label="Closed" value={workspace.rejected} total={workspace.applications.length} color="bg-[#70B99D]" />
           </div>
           <Link to="/applicants" className="mt-9 inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-ink/65">
             Open candidate pipeline
@@ -255,8 +284,8 @@ function CandidateOverview({
           <h2 id="candidate-pulse-heading" className="font-display mt-2 text-2xl text-ink">Your pipeline at a glance</h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-3">
             <PipelineDatum label="Submitted" value={workspace.applied} />
-            <PipelineDatum label="Shortlisted" value={workspace.shortlisted} tone="text-[#1F8F6A]" />
-            <PipelineDatum label="Closed" value={workspace.rejected} tone="text-[#0F2A22]" />
+            <PipelineDatum label="Shortlisted" value={workspace.shortlisted} tone="text-[#2A9D7B]" />
+            <PipelineDatum label="Closed" value={workspace.rejected} tone="text-[#183A32]" />
           </div>
           <Link to="/applications" className="mt-9 inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-ink/65">
             Review your applications
@@ -333,4 +362,15 @@ function buildActivity(applications: ApplicationSummary[]) {
 function dateValue(value?: string) {
   const date = value ? new Date(value).getTime() : 0;
   return Number.isFinite(date) ? date : 0;
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return "recently";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "recently" : date.toLocaleDateString();
+}
+
+function formatApplicantCount(value?: number) {
+  const count = Number.isFinite(value) ? Math.max(0, Math.floor(value as number)) : 0;
+  return `${count} applicant${count === 1 ? "" : "s"}`;
 }

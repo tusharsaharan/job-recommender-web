@@ -15,12 +15,12 @@ export const Route = createFileRoute("/auth")({
 });
 
 // Palette — white-first with subtle mint accents.
-const CREAM = "#FFFFFF";
-const CREAM_SOFT = "#FFFFFF";
-const INK = "#0F2A22";
-const CORAL = "#2FB88A"; /* mint-deep accent */
-const MINT = "#D4F5E5"; /* lighter mint for big button */
-const MINT_HOVER = "#8FECC1"; /* standard mint on hover */
+const CREAM = "#F7FFFB";
+const CREAM_SOFT = "rgba(255, 255, 255, 0.72)";
+const INK = "#183A32";
+const CORAL = "#2A9D7B";
+const MINT = "#D6F6E7";
+const MINT_HOVER = "#A9EBD1";
 
 function AuthPage() {
   const { user, login } = useAuth();
@@ -34,6 +34,11 @@ function AuthPage() {
   const [role, setRole] = useState<UserRole>("seeker");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const queryMode = new URLSearchParams(window.location.search).get("mode");
+    if (queryMode === "signup") setMode("signup");
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,7 +71,7 @@ function AuthPage() {
   return (
     <main
       className="relative min-h-screen w-full"
-      style={{ backgroundColor: CREAM, color: INK, fontFamily: "'Inter', system-ui, sans-serif" }}
+      style={{ backgroundColor: CREAM, color: INK, fontFamily: "'Nunito', system-ui, sans-serif" }}
     >
       {/* Wordmark, matching the reference's chunky rounded logo */}
       <div className="absolute left-8 top-8 flex items-center gap-2 sm:left-12 sm:top-10">
@@ -78,7 +83,7 @@ function AuthPage() {
         </span>
         <span
           className="text-xl font-extrabold tracking-tight"
-          style={{ color: INK, fontFamily: "'Mona Sans', 'Nunito', system-ui, sans-serif" }}
+          style={{ color: INK, fontFamily: "'Fredoka', 'Nunito', system-ui, sans-serif" }}
         >
           Jobly
         </span>
@@ -90,18 +95,19 @@ function AuthPage() {
             className="rounded-[2rem] p-8 transition-all duration-300 hover:-translate-y-0.5 sm:p-10"
             style={{
               backgroundColor: CREAM_SOFT,
-              border: "1px solid rgba(15,42,34,0.10)",
-              boxShadow: "0 30px 80px -40px rgba(15,42,34,0.12), 0 2px 8px rgba(15,42,34,0.04)",
+              border: "1px solid rgba(24,58,50,0.12)",
+              boxShadow: "0 30px 80px -40px rgba(42,157,123,0.28), 0 2px 8px rgba(24,58,50,0.05)",
+              backdropFilter: "blur(18px)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow =
-                "0 40px 90px -36px rgba(15,42,34,0.18), 0 4px 14px rgba(15,42,34,0.06)";
-              e.currentTarget.style.borderColor = "rgba(15,42,34,0.18)";
+                "0 40px 90px -36px rgba(42,157,123,0.36), 0 4px 14px rgba(24,58,50,0.08)";
+              e.currentTarget.style.borderColor = "rgba(42,157,123,0.28)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow =
-                "0 30px 80px -40px rgba(15,42,34,0.12), 0 2px 8px rgba(15,42,34,0.04)";
-              e.currentTarget.style.borderColor = "rgba(15,42,34,0.10)";
+                "0 30px 80px -40px rgba(42,157,123,0.28), 0 2px 8px rgba(24,58,50,0.05)";
+              e.currentTarget.style.borderColor = "rgba(24,58,50,0.12)";
             }}
           >
             <p
@@ -118,7 +124,7 @@ function AuthPage() {
               className="text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl"
               style={{
                 color: INK,
-                fontFamily: "'Mona Sans', 'Nunito', system-ui, sans-serif",
+                fontFamily: "'Fredoka', 'Nunito', system-ui, sans-serif",
               }}
             >
               {isLogin ? "Hey, welcome back." : "Nice to meet you."}
@@ -163,7 +169,7 @@ function AuthPage() {
                           style={
                             role === r
                               ? { backgroundColor: INK, color: CREAM }
-                              : { backgroundColor: "rgba(59,42,31,0.06)", color: `${INK}CC` }
+                              : { backgroundColor: "rgba(214,246,231,0.72)", color: `${INK}CC` }
                           }
                         >
                           {r}
@@ -204,16 +210,23 @@ function AuthPage() {
             </form>
           </div>
 
-          <p className="mt-6 text-center text-sm font-medium" style={{ color: `${INK}A6` }}>
-            {isLogin ? "New here? " : "Already a member? "}
-            <button
-              onClick={() => setMode(isLogin ? "signup" : "login")}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 text-center text-sm font-medium" style={{ color: `${INK}A6` }}>
+            <span>{isLogin ? "New here?" : "Already a member?"}</span>
+            <a
+              href={isLogin ? "/auth?mode=signup" : "/auth"}
               className="font-extrabold underline underline-offset-4 transition-opacity hover:opacity-70"
               style={{ color: CORAL }}
             >
               {isLogin ? "Create an account" : "Log in"}
-            </button>
-          </p>
+            </a>
+          </div>
+          <a
+            href="/"
+            className="mt-5 block text-center text-sm font-semibold transition-opacity hover:opacity-65"
+            style={{ color: `${INK}8C` }}
+          >
+            Back to home
+          </a>
         </div>
       </div>
     </main>
@@ -255,9 +268,9 @@ function UField({
         required={required}
         className="mt-2 w-full rounded-2xl px-4 py-3 text-[15px] transition-colors duration-200 focus:outline-none focus:ring-2"
         style={{
-          backgroundColor: "#fff",
+          backgroundColor: "rgba(255,255,255,0.72)",
           color: INK,
-          border: "1px solid rgba(14,17,22,0.12)",
+          border: "1px solid rgba(24,58,50,0.14)",
         }}
       />
     </label>

@@ -2,10 +2,10 @@ export function StatusLabel({ status }: { status?: string }) {
   const normalized = status || "applied";
   const className =
     normalized === "shortlisted"
-      ? "border-[#57CFA0] bg-[#D6F5E5] text-[#0F5A44]"
+      ? "border-[#8DDCBE] bg-[#E9FBF2] text-[#1E7058]"
       : normalized === "rejected"
-        ? "border-[#B7DFCE] bg-[#F1FAF5] text-[#2F5E4E]"
-        : "border-[#C7EFDD] bg-[#EFFBF4] text-[#1F8F6A]";
+        ? "border-[#B6DCCB] bg-[#F2FAF6] text-[#335E50]"
+        : "border-[#C5EBDD] bg-[#EFFBF5] text-[#23765E]";
 
   return (
     <span

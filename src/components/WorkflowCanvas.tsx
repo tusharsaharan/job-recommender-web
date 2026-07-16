@@ -16,6 +16,32 @@ interface WorkflowCanvasProps {
   steps: readonly WorkflowVisualStep[];
 }
 
+function SceneRibbon({ color, offset, rotation }: { color: string; offset: number; rotation: number }) {
+  const ribbon = useRef<THREE.Mesh>(null);
+  const geometry = useMemo(() => {
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-4.8, -1.3 + offset, -2.8),
+      new THREE.Vector3(-2.1, 1.15 + offset, -2.4),
+      new THREE.Vector3(0.2, -0.55 + offset, -2.9),
+      new THREE.Vector3(2.5, 1.28 + offset, -2.5),
+      new THREE.Vector3(5.2, -0.1 + offset, -2.8),
+    ]);
+    return new THREE.TubeGeometry(curve, 96, 0.08, 12, false);
+  }, [offset]);
+
+  useFrame(({ clock }) => {
+    if (!ribbon.current) return;
+    ribbon.current.rotation.z = rotation + Math.sin(clock.getElapsedTime() * 0.24 + offset) * 0.08;
+    ribbon.current.position.y = Math.sin(clock.getElapsedTime() * 0.42 + offset) * 0.12;
+  });
+
+  return (
+    <mesh ref={ribbon} geometry={geometry} rotation={[0.22, -0.18, rotation]}>
+      <meshStandardMaterial color={color} roughness={0.38} metalness={0.03} transparent opacity={0.52} />
+    </mesh>
+  );
+}
+
 function WorkflowCard({
   index,
   reducedMotion = false,
@@ -88,7 +114,7 @@ function WorkflowCard({
   return (
     <group ref={group}>
       <RoundedBox args={[3.2, 4.2, 0.18]} radius={0.1} smoothness={4} castShadow receiveShadow>
-        <meshStandardMaterial ref={frameMaterial} color="#F3FBF6" metalness={0.02} opacity={0.3} roughness={0.56} transparent />
+        <meshStandardMaterial ref={frameMaterial} color="#fffefd" metalness={0.02} opacity={0.3} roughness={0.56} transparent />
       </RoundedBox>
 
       <mesh position={[0, 0.14, 0.105]}>
@@ -103,7 +129,7 @@ function WorkflowCard({
 
       <mesh position={[-1.08, -1.74, 0.118]}>
         <circleGeometry args={[0.07, 24]} />
-        <meshBasicMaterial ref={markerMaterial} color="#E6F3ED" opacity={0.3} transparent />
+        <meshBasicMaterial ref={markerMaterial} color="#e8f6c8" opacity={0.3} transparent />
       </mesh>
     </group>
   );
@@ -116,11 +142,13 @@ function WorkflowScene({
 }: Omit<WorkflowCanvasProps, "onReady">) {
   return (
     <>
-      <color attach="background" args={["#F3FBF6"]} />
+      <color attach="background" args={["#f7fffb"]} />
       <ambientLight intensity={1.7} />
-      <directionalLight castShadow color="#D6F5E5" intensity={2.1} position={[-4, 6, 8]} />
-      <pointLight color="#8FECC1" intensity={7} position={[5, 1, 4]} />
-      <pointLight color="#2FB88A" intensity={4.5} position={[-4, -2, 2]} />
+      <directionalLight castShadow color="#effcf6" intensity={2.1} position={[-4, 6, 8]} />
+      <pointLight color="#a9ebd1" intensity={7} position={[5, 1, 4]} />
+      <pointLight color="#b7d7f1" intensity={4.5} position={[-4, -2, 2]} />
+      <SceneRibbon color="#d6f6e7" offset={0.7} rotation={-0.14} />
+      <SceneRibbon color="#74cbaa" offset={-1.65} rotation={0.18} />
 
       <group position={[-1.35, -0.35, 0]}>
         {steps.map((step, index) => (

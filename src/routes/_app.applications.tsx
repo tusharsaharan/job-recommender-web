@@ -68,8 +68,8 @@ function ApplicationsPage() {
 
       <section className="mt-8 grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0" aria-label="Application status counts">
         <PipelineCount label="Submitted" value={pipeline.applied} />
-        <PipelineCount label="Shortlisted" value={pipeline.shortlisted} tone="text-[#1F8F6A]" />
-        <PipelineCount label="Closed" value={pipeline.rejected} tone="text-[#0F2A22]" />
+        <PipelineCount label="Shortlisted" value={pipeline.shortlisted} tone="text-[#2A9D7B]" />
+        <PipelineCount label="Closed" value={pipeline.rejected} tone="text-[#183A32]" />
       </section>
 
       <section className="mt-8 border-y border-border" aria-label="Applications">
@@ -138,10 +138,10 @@ function PipelineCount({ label, tone = "text-ink", value }: { label: string; ton
 function StatusLabel({ status }: { status: string }) {
   const normalized = status === "shortlisted" || status === "rejected" ? status : "applied";
   const className = normalized === "shortlisted"
-    ? "border-[#57CFA0] bg-[#D6F5E5] text-[#0F5A44]"
+    ? "border-[#8DDCBE] bg-[#E9FBF2] text-[#1E7058]"
     : normalized === "rejected"
-      ? "border-[#B7DFCE] bg-[#F1FAF5] text-[#2F5E4E]"
-      : "border-[#C7EFDD] bg-[#EFFBF4] text-[#1F8F6A]";
+      ? "border-[#B6DCCB] bg-[#F2FAF6] text-[#335E50]"
+      : "border-[#C5EBDD] bg-[#EFFBF5] text-[#23765E]";
   return <span className={`rounded-md border px-2.5 py-1 text-xs font-semibold capitalize ${className}`}>{normalized}</span>;
 }
 

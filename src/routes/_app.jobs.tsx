@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_app/jobs")({
   head: () => ({
     meta: [
       { title: "Jobs | Jobly" },
-      { name: "description", content: "Roles matched to your resume." },
+      { name: "description", content: "Explore every posted role with clear fit and eligibility context." },
     ],
   }),
   component: JobsPage,
@@ -38,6 +38,8 @@ interface Job {
   atsTips?: string[];
   company?: string;
   description: string;
+  eligible?: boolean;
+  eligibilityReasons?: string[];
   match?: number;
   skills: string[];
   title: string;
@@ -73,7 +75,11 @@ function JobsPage() {
         setJobs(safeJobs.map((job) => ({
           ...job,
           applied: appliedIds.has(job._id),
+          description: typeof job.description === "string" ? job.description : "",
+          eligible: job.eligible !== false,
+          eligibilityReasons: Array.isArray(job.eligibilityReasons) ? job.eligibilityReasons : [],
           match: job.score,
+          skills: Array.isArray(job.skills) ? job.skills : [],
         })));
       })
       .catch((error) => {
@@ -145,7 +151,7 @@ function JobsPage() {
           <p className="marker-num">Role intelligence</p>
           <h1 className="font-display mt-4 text-[clamp(2.7rem,5.4vw,5.5rem)] text-ink">Opportunities, with context.</h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink/68">
-            Explore roles against your profile, inspect the evidence behind a score, and apply when the fit is worth your time.
+            Every posted role stays visible here. Check fit, inspect the evidence, and see any eligibility rule before you apply.
           </p>
         </div>
         <label className="control-surface flex min-h-11 w-full items-center gap-3 px-3 lg:max-w-sm">
@@ -161,11 +167,11 @@ function JobsPage() {
       </header>
 
       <div className="mt-7 flex flex-wrap items-center justify-between gap-3 text-sm text-ink/55" aria-live="polite">
-        <span>{loading ? "Finding matched roles..." : `${filteredJobs.length} role${filteredJobs.length === 1 ? "" : "s"} available`}</span>
+        <span>{loading ? "Finding posted roles..." : `${filteredJobs.length} role${filteredJobs.length === 1 ? "" : "s"} available`}</span>
         <span>{user?.resumeText ? "Scores use your current resume" : "Add a resume to unlock scoring"}</span>
       </div>
 
-      <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Matched roles">
+      <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Posted roles">
         {loading ? <LoadingCards /> : null}
         {!loading && filteredJobs.length === 0 ? <EmptyRoles hasResume={Boolean(user?.resumeText)} /> : null}
         {!loading && filteredJobs.map((job, index) => (
@@ -174,7 +180,7 @@ function JobsPage() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.32, delay: Math.min(index * 0.035, 0.2) }}
-            className="surface flex min-h-[430px] flex-col p-5 transition-[box-shadow,transform] duration-200 hover:-translate-y-1 hover:shadow-[0_24px_42px_-30px_oklch(0.23_0.03_250_/_0.42)]"
+            className="surface flex min-h-[430px] flex-col p-5"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
@@ -183,7 +189,7 @@ function JobsPage() {
               </div>
               {typeof job.match === "number" ? (
                 <div className="shrink-0 border-l border-border pl-3 text-right">
-                  <p className="font-display text-3xl text-[#1F8F6A]">{Math.round(job.match)}%</p>
+                  <p className="font-display text-3xl text-[#2A9D7B]">{Math.round(job.match)}%</p>
                   <p className="mt-1 text-xs font-semibold text-ink/50">Role fit</p>
                 </div>
               ) : null}
@@ -237,11 +243,21 @@ function JobsPage() {
 
               <div className="mt-5">
                 {job.applied ? (
-                  <div className="flex items-center justify-between gap-3 border border-[#57CFA0] bg-[#D6F5E5] px-3 py-2.5 text-sm text-[#0F5A44]">
+                  <div className="flex items-center justify-between gap-3 border border-[#8DDCBE] bg-[#E9FBF2] px-3 py-2.5 text-sm text-[#1E7058]">
                     <span className="inline-flex items-center gap-2 font-semibold"><Check className="h-4 w-4" aria-hidden="true" />Application sent</span>
                     <Link to="/applications" className="font-semibold underline underline-offset-4">Track it</Link>
                   </div>
-                ) : user?.resumeText ? (
+                ) : !user?.resumeText ? (
+                  <Link to="/resume" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-cream transition-colors hover:bg-ink/85">
+                    <FileText className="h-4 w-4" aria-hidden="true" />
+                    Add resume to apply
+                  </Link>
+                ) : job.eligible === false ? (
+                  <div className="border border-[#A9EBD1] bg-[#ECFBF4] px-3 py-2.5 text-sm text-[#1E7058]">
+                    <p className="font-semibold">Requirements not met</p>
+                    <p className="mt-1 leading-5 text-[#276D59]">{job.eligibilityReasons?.[0] || "This role has a requirement your current profile does not meet."}</p>
+                  </div>
+                ) : (
                   <button
                     type="button"
                     onClick={() => void apply(job._id)}
@@ -252,11 +268,6 @@ function JobsPage() {
                     {applying === job._id ? "Sending application" : "Apply to role"}
                     {applying === job._id ? null : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
                   </button>
-                ) : (
-                  <Link to="/resume" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-cream transition-colors hover:bg-ink/85">
-                    <FileText className="h-4 w-4" aria-hidden="true" />
-                    Add resume to apply
-                  </Link>
                 )}
               </div>
             </div>
@@ -277,7 +288,7 @@ function Requirements({ requirements }: { requirements?: Job["atsRequirements"] 
   ].filter(Boolean);
 
   return rules.length > 0 ? (
-    <div className="mt-5 border-l-2 border-[#2FB88A] pl-3">
+    <div className="mt-5 border-l-2 border-[#2A9D7B] pl-3">
       <p className="marker-num text-ink/50">Role requirements</p>
       <p className="mt-1 text-xs leading-5 text-ink/65">{rules.join(" | ")}</p>
     </div>
@@ -287,9 +298,9 @@ function Requirements({ requirements }: { requirements?: Job["atsRequirements"] 
 function EmptyRoles({ hasResume }: { hasResume: boolean }) {
   return (
     <div className="surface col-span-full flex min-h-64 flex-col items-center justify-center px-6 text-center">
-      <p className="font-display text-3xl text-ink">{hasResume ? "No roles match that search." : "Your resume unlocks matching."}</p>
+      <p className="font-display text-3xl text-ink">{hasResume ? "No roles match that search." : "Your resume unlocks scoring."}</p>
       <p className="mt-3 max-w-md text-sm leading-6 text-ink/60">
-        {hasResume ? "Try a different title, company, or skill. New roles will appear here as they are posted." : "Upload a PDF resume first, then Jobly can compare your profile with open roles."}
+        {hasResume ? "Try a different title, company, or skill. New roles will appear here as they are posted." : "You can browse every role now. Upload a PDF resume when you are ready to see fit evidence and apply."}
       </p>
       {!hasResume ? <Link to="/resume" className="pill-mint mt-6 gap-2"><FileText className="h-4 w-4" aria-hidden="true" />Upload resume</Link> : null}
     </div>

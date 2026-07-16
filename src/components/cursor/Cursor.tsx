@@ -49,9 +49,9 @@ export function Cursor() {
           height: size,
           opacity: hover ? 0.09 : 0.065,
           transform: "translate(-50%, -50%)",
-          background:
-            "radial-gradient(circle, rgba(143,236,193,0.55) 0%, rgba(143,236,193,0.22) 35%, rgba(143,236,193,0) 70%)",
-          filter: "blur(28px)",
+          background: "rgba(169, 235, 209, 0.48)",
+          borderRadius: "999px",
+          filter: "blur(34px)",
         }}
       />
     </motion.div>
